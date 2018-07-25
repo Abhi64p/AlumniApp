@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303f9f</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="LayoutBG">#1d5e78</color>
+    <color name="StatusBar">#226e8c</color>
+    <color name="Line">#39B1E0</color>
+</resources>
