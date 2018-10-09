@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,13 +16,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserAttributes;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserCodeDeliveryDetails;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
-import com.amazonaws.mobileconnectors.cognitoidentityprovider.handlers.SignUpHandler;
-import com.amazonaws.regions.Regions;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
@@ -31,7 +24,7 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class SignUpActivity extends Activity
+public class SignUpActivity extends AppCompatActivity
 {
     private EditText SignUpPassword1ET, SignUpPassword2ET;
     private Thread AnimationThread;
@@ -39,7 +32,6 @@ public class SignUpActivity extends Activity
     private ScrollView SignUpScrollView;
     private String Email, Name, Password1, Phone;
     private Button ContinueButton;
-    private static final int VerificationRequest = 1;
     private EditText SignUpPhoneET;
 
     @Override
@@ -194,11 +186,11 @@ public class SignUpActivity extends Activity
                         reader.close();
 
                         final String LoginResponse = SB.toString();
-                        if(EA.isRunning)
-                            StopAnimation();
 
                         if (LoginResponse.equals("PhoneNumberExist"))
                         {
+                            if(EA.isRunning)
+                                StopAnimation();
                             runOnUiThread(new Runnable()
                             {
                                 @Override
@@ -217,18 +209,15 @@ public class SignUpActivity extends Activity
                             writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
                             writer.write("email=" + Email+"&phone_number=" + Phone + "&name=" + Name + "&password=" + Password1 + "&phone_number=" + Phone);
                             writer.flush();
+                            if(EA.isRunning)
+                                StopAnimation();
                             if (urlConnection.getResponseCode() == HttpsURLConnection.HTTP_OK)
                             {
-                                runOnUiThread(new Runnable()
-                                {
-                                    @Override
-                                    public void run()
-                                    {
-                                        if(!EA.isRunning)
-                                            StartAnimation();
-                                    }
-                                });
-                                CognitoSignUp();
+                                getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit().putBoolean("LoggedIn",true);
+                                Intent returnIntent = new Intent();
+                                returnIntent.putExtra("Status","Created");
+                                setResult(Activity.RESULT_OK,returnIntent);
+                                SignUpActivity.this.finish();
                             }
                             else
                             {
@@ -248,6 +237,8 @@ public class SignUpActivity extends Activity
                     }
                     else
                     {
+                        if(EA.isRunning)
+                            StopAnimation();
                         runOnUiThread(new Runnable()
                         {
                             @Override
@@ -262,6 +253,8 @@ public class SignUpActivity extends Activity
                     }
                 } catch (final Exception ex)
                 {
+                    if(EA.isRunning)
+                        StopAnimation();
                     runOnUiThread(new Runnable()
                     {
                         @Override
@@ -324,76 +317,6 @@ public class SignUpActivity extends Activity
             }
         });
         AnimationThread.interrupt();
-    }
-
-    private void CognitoSignUp()
-    {
-        CognitoUserPool userPool = new CognitoUserPool(getApplicationContext(), CommonData.UserPoolId, CommonData.ClientId, CommonData.ClientSecret, Regions.AP_SOUTH_1);
-
-        CognitoUserAttributes userAttributes = new CognitoUserAttributes();
-        userAttributes.addAttribute("given_name", Name);
-        userAttributes.addAttribute("phone_number", Phone);
-        userAttributes.addAttribute("email", Email);
-
-        SignUpHandler signupCallback = new SignUpHandler()
-        {
-            @Override
-            public void onSuccess(CognitoUser cognitoUser, boolean userConfirmed, CognitoUserCodeDeliveryDetails cognitoUserCodeDeliveryDetails)
-            {
-                CommonData.cognitoUser = cognitoUser;
-                if (!userConfirmed)
-                {
-                    SharedPreferences.Editor editor = getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit();
-                    editor.putString("email",Email);
-                    editor.putString("password",Password1);
-                    editor.putBoolean("LoggedIn",true);
-                    editor.apply();
-                    if(EA.isRunning)
-                        StopAnimation();
-                    startActivityForResult(new Intent(SignUpActivity.this,VerifyPhoneActivity.class).putExtra("Phone",Phone),VerificationRequest);
-                }
-            }
-
-            @Override
-            public void onFailure(Exception exception)
-            {
-                runOnUiThread(new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        Toast.makeText(SignUpActivity.this, "Bad Internet Connection. Try again", Toast.LENGTH_SHORT).show();
-                        if(EA.isRunning)
-                            StopAnimation();
-                        ContinueButton.setEnabled(true);
-                    }
-                });
-            }
-
-        };
-
-        userPool.signUpInBackground(Email, Password1, userAttributes, null, signupCallback);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        if(requestCode == VerificationRequest)
-        {
-            Intent returnIntent = new Intent();
-            if (resultCode == Activity.RESULT_OK)
-            {
-                returnIntent.putExtra("Status","Verified");
-                setResult(Activity.RESULT_OK,returnIntent);
-                finish();
-            }
-            else if(resultCode == Activity.RESULT_CANCELED)
-            {
-                returnIntent.putExtra("Status","NotVerified");
-                setResult(Activity.RESULT_OK,returnIntent);
-                finish();
-            }
-        }
     }
 
     @Override

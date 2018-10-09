@@ -2,8 +2,10 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303f9f</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#ff4081</color>
     <color name="LayoutBG">#1d5e78</color>
+    <color name="LayoutWBG">#ececec</color>
     <color name="StatusBar">#226e8c</color>
-    <color name="Line">#39B1E0</color>
+    <color name="Line">#39b1e0</color>
+    <color name="primary_dark_material_light">#000000</color>
 </resources>

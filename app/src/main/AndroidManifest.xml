@@ -3,6 +3,8 @@
     package="asiet.alumniapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -11,18 +13,24 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".EntryActivity">
+        android:theme="@style/ModifiedTheme">
+        <activity
+            android:name=".EntryActivity"
+            android:theme="@style/ModifiedTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+                <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity android:name=".SignUpActivity" />
-        <activity android:name=".VerifyPhoneActivity" />
         <activity android:name=".ProfileActivity" />
-        <activity android:name=".EmailPhoneVerificationActivity"></activity>
+        <activity
+            android:name=".ProfilePhotoPicker"
+            android:label="@string/title_activity_profile_photo_picker"
+            android:screenOrientation="portrait"
+            android:theme="@style/ModifiedTheme.Dialog.Alert">
+        </activity>
     </application>
 
 </manifest>

@@ -1,13 +1,11 @@
 package asiet.alumniapp;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -21,13 +19,13 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class EntryActivity extends Activity
+public class EntryActivity extends AppCompatActivity
 {
     private EntryAnimation EA;
-    Thread AnimationThread;
-    EditText EmailET;
-    static final int SignUpRequestCode = 1;
-    static final int ProfileRequestCode = 2;
+    private Thread AnimationThread;
+    private EditText EmailET;
+    private static final int SignUpRequestCode = 1;
+    private static final int ProfileRequestCode = 2;
     private boolean PasswordShowed = false;
     private boolean EmailShowedAtStartup = false;
     private Button ContinueButton;
@@ -130,7 +128,6 @@ public class EntryActivity extends Activity
             float NewY = CurrentY - (CurrentY/2);
 
             EA.setY(EA.getY() + NewY);
-            //EA.invalidate();
 
             ViewTranslationAnimation textViewTranslation = new ViewTranslationAnimation(AppNameTV);
             ViewAlphaAnimation alphaAnimEmailET = new ViewAlphaAnimation(EmailET);
@@ -409,16 +406,9 @@ public class EntryActivity extends Activity
             if (resultCode == RESULT_OK)
             {
                 String Status = data.getStringExtra("Status");
-                if (Status.equals("Verified"))
+                if (Status.equals("Created"))
                 {
                     startActivityForResult(new Intent(EntryActivity.this,ProfileActivity.class),ProfileRequestCode);
-                }
-                else if (Status.equals("NotVerified"))
-                {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setMessage("Your account is not verified. Login to your account for completing verification");
-                    builder.setTitle("Alert");
-                    builder.create().show();
                 }
                 else if (Status.equals("ChangeEmail"))
                     EmailET.requestFocus();
