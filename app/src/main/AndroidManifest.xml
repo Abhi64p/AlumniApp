@@ -25,12 +25,6 @@
         </activity>
         <activity android:name=".SignUpActivity" />
         <activity android:name=".ProfileActivity" />
-        <activity
-            android:name=".ProfilePhotoPicker"
-            android:label="@string/title_activity_profile_photo_picker"
-            android:screenOrientation="portrait"
-            android:theme="@style/ModifiedTheme.Dialog.Alert">
-        </activity>
     </application>
 
 </manifest>

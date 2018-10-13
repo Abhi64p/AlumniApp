@@ -2,13 +2,17 @@ package asiet.alumniapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
@@ -40,12 +44,14 @@ public class ProfileActivity extends AppCompatActivity
 
     private TextView mTextMessage;
     private ConstraintLayout LL;
-    private int PhotoPickerRequestCode = 0;
-    private BottomNavigationView navigation;
+    private int GalleryDialogRequestCode = 0;
+    private int CameraDialogrequestCode = 1;
+    private int ProfilePhotoAutoLoadPermissionrequestCode = 2;
     private EntryAnimation EA;
     private Thread AnimationThread;
     private ImageView ProPicView;
     private String ProPicPath;
+    private Uri CameraImageUri;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener()
@@ -80,7 +86,7 @@ public class ProfileActivity extends AppCompatActivity
         setContentView(R.layout.activity_profile);
 
         mTextMessage = (TextView) findViewById(R.id.message);
-        navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         LL = findViewById(R.id.ProfileLayout);
@@ -133,7 +139,7 @@ public class ProfileActivity extends AppCompatActivity
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i)
                         {
-                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},0);
+                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},ProfilePhotoAutoLoadPermissionrequestCode);
                         }
                     })
                     .create().show();
@@ -148,7 +154,55 @@ public class ProfileActivity extends AppCompatActivity
 
     public void ProfilePhotoClicked(View view)
     {
-        startActivityForResult(new Intent(this,ProfilePhotoPicker.class),PhotoPickerRequestCode);
+        if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+        {
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission Needed")
+                    .setMessage("This feature needs storage permission for selecting profile picture from phone storage.")
+                    .setCancelable(false)
+                    .setPositiveButton("Okay", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},0);
+                        }
+                    })
+                    .create().show();
+        }
+        else
+        {
+            final AlertDialog PhotoPicker = new AlertDialog.Builder(this)
+                    .setView(R.layout.profile_photo_picker_dialog)
+                    .create();
+            PhotoPicker.show();
+            PhotoPicker.findViewById(R.id.GalleryButton).setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    startActivityForResult(intent, GalleryDialogRequestCode);
+                    PhotoPicker.dismiss();
+                }
+            });
+            PhotoPicker.findViewById(R.id.CameraButton).setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    ContentValues values = new ContentValues();
+                    values.put(MediaStore.Images.Media.TITLE, "New Picture");
+                    values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
+                    CameraImageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, CameraImageUri);
+                    startActivityForResult(intent, CameraDialogrequestCode);
+                    PhotoPicker.dismiss();
+                }
+            });
+        }
+
     }
 
     private void UploadFile(final String Path)
@@ -159,7 +213,7 @@ public class ProfileActivity extends AppCompatActivity
             String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
             int bytesRead, bytesAvailable, bufferSize;
             byte[] buffer;
-            File Image = new File(Path);
+            final File Image = new File(Path+"_tmp");
             FileInputStream fileInputStream = new FileInputStream(Image);
             HttpsURLConnection connection = (HttpsURLConnection) new URL(CommonData.UploadImageAddress).openConnection();
             connection.setDoInput(true);
@@ -214,7 +268,13 @@ public class ProfileActivity extends AppCompatActivity
                         if (EA.isRunning)
                             StopAnimation();
                         if (Result.equals("Success"))
+                        {
+                            File NewImage = new File(ProPicPath);
+                            if(NewImage.exists())
+                                NewImage.delete();
+                            Image.renameTo(NewImage);
                             ProPicView.setImageBitmap(BitmapFactory.decodeFile(ProPicPath));
+                        }
                         else
                             Toast.makeText(ProfileActivity.this, "Bad Internet Connection!", Toast.LENGTH_LONG).show();
                     }
@@ -262,7 +322,8 @@ public class ProfileActivity extends AppCompatActivity
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(), "UTF-8"));
             writer.write("email=" + email);
             writer.flush();
-            if (connection.getResponseCode() == HttpsURLConnection.HTTP_OK)
+            int ConnectionResponse = connection.getResponseCode();
+            if (ConnectionResponse == HttpsURLConnection.HTTP_OK)
             {
                 File Image = new File(ProPicPath);
                 Image.createNewFile();
@@ -279,22 +340,18 @@ public class ProfileActivity extends AppCompatActivity
                     @Override
                     public void run()
                     {
-                        if(EA.isRunning)
-                            StopAnimation();
                         ProPicView.setImageBitmap(BitmapFactory.decodeFile(ProPicPath));
                     }
                 });
             }
-            else
+            else if(ConnectionResponse != HttpsURLConnection.HTTP_NOT_FOUND)
             {
                 runOnUiThread(new Runnable()
                 {
                     @Override
                     public void run()
                     {
-                        if (EA.isRunning)
-                            StopAnimation();
-                        Toast.makeText(ProfileActivity.this, "Download Error.Bad Internet Connection!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(ProfileActivity.this, "Bad Internet Connection!", Toast.LENGTH_LONG).show();
                     }
                 });
             }
@@ -306,19 +363,25 @@ public class ProfileActivity extends AppCompatActivity
                 @Override
                 public void run()
                 {
-                    if (EA.isRunning)
-                        StopAnimation();
-                    Toast.makeText(ProfileActivity.this, "Download Error. Bad Internet Connection!\n" + ex.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(ProfileActivity.this, "Bad Internet Connection!", Toast.LENGTH_LONG).show();
                 }
             });
         }
+        runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if(EA.isRunning)
+                    StopAnimation();
+            }
+        });
     }
 
-    private void StoreImage(String Path)
+    private void StoreImage(Bitmap bitmap)
     {
         try
         {
-            Bitmap bitmap = BitmapFactory.decodeFile(Path);
             int Width = bitmap.getWidth();
             int Height = bitmap.getHeight();
             int CenterX = Width/2;
@@ -329,7 +392,7 @@ public class ProfileActivity extends AppCompatActivity
                 Height = Width;
             bitmap = Bitmap.createBitmap(bitmap,CenterX-Width/2,CenterY-Height/2,Width,Height);
             bitmap = Bitmap.createScaledBitmap(bitmap,800,800,true);
-            File Image = new File(ProPicPath);
+            File Image = new File(ProPicPath+"_tmp");
             if (Image.exists())
                 Image.delete();
             Image.createNewFile();
@@ -345,6 +408,8 @@ public class ProfileActivity extends AppCompatActivity
                 @Override
                 public void run()
                 {
+                    if(EA.isRunning)
+                        StopAnimation();
                     Toast.makeText(ProfileActivity.this, "Can't load image!", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -419,19 +484,53 @@ public class ProfileActivity extends AppCompatActivity
     @Override
     public void onActivityResult(int requestCode, int resultCode, final Intent data)
     {
-        if (requestCode == PhotoPickerRequestCode)
+        if (requestCode == GalleryDialogRequestCode)
         {
             if (resultCode == RESULT_OK)
             {
-                if(!EA.isRunning)
+                if (!EA.isRunning)
                     StartAnimation();
                 Thread BGThread = new Thread(new Runnable()
                 {
                     @Override
                     public void run()
                     {
-                        StoreImage(data.getStringExtra("FilePath"));
+                        Bitmap bitmap = BitmapFactory.decodeFile(new UriPathResolver(getContentResolver()).GetRealPath(ProfileActivity.this, data.getData()));
+                        StoreImage(bitmap);
                         UploadFile(ProPicPath);
+                    }
+                });
+                BGThread.start();
+            }
+        }
+        else if(requestCode == CameraDialogrequestCode)
+        {
+            if(resultCode == RESULT_OK)
+            {
+                if (!EA.isRunning)
+                    StartAnimation();
+                Thread BGThread = new Thread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        try
+                        {
+                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), CameraImageUri);
+                            StoreImage(bitmap);
+                            UploadFile(ProPicPath);
+                        }
+                        catch (final Exception ex)
+                        {
+                            runOnUiThread(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    Toast.makeText(ProfileActivity.this, "Can't load image!", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
                     }
                 });
                 BGThread.start();
@@ -443,7 +542,7 @@ public class ProfileActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == 0)
+        if(requestCode == ProfilePhotoAutoLoadPermissionrequestCode)
         {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED)
             {
