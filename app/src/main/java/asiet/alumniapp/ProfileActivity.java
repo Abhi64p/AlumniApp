@@ -197,6 +197,75 @@ public class ProfileActivity extends AppCompatActivity
                     PhotoPicker.dismiss();
                 }
             });
+            PhotoPicker.findViewById(R.id.RemoveButton).setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View view)
+                {
+                    Thread BGThread = new Thread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            try
+                            {
+                                HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(CommonData.RemoveImageAddress).openConnection();
+                                //urlConnection.setDoInput(true);
+                                urlConnection.setDoOutput(true);
+                                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
+                                writer.write("email=" + getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("email",""));
+                                writer.flush();
+                                if (urlConnection.getResponseCode() == HttpsURLConnection.HTTP_OK)
+                                {
+                                    File Image = new File(ProPicPath);
+                                    if(Image.exists())
+                                        Image.delete();
+                                    runOnUiThread(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            if(EA.isRunning)
+                                                StopAnimation();
+                                            ProPicView.setImageBitmap(BitmapFactory.decodeResource(getResources(),R.drawable.blank_pro_pic));
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    runOnUiThread(new Runnable()
+                                    {
+                                        @Override
+                                        public void run()
+                                        {
+                                            if(EA.isRunning)
+                                                StopAnimation();
+                                            Toast.makeText(ProfileActivity.this, "Bad Internet Connection!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            }
+                            catch(Exception ex)
+                            {
+                                runOnUiThread(new Runnable()
+                                {
+                                    @Override
+                                    public void run()
+                                    {
+                                        if(EA.isRunning)
+                                            StopAnimation();
+                                        Toast.makeText(ProfileActivity.this, "Bad Internet Connection!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                    if(!EA.isRunning)
+                        StartAnimation();
+                    BGThread.start();
+                    PhotoPicker.dismiss();
+                }
+            });
         }
 
     }
