@@ -331,11 +331,11 @@ public class EntryActivity extends AppCompatActivity
                                 SB.append(line);
                             reader.close();
 
-                            final String LoginResponse = SB.toString();
+                            final String[] LoginResponse = SB.toString().split(":");
                             if (EA.isRunning)
                                 StopAnimation();
 
-                            if (LoginResponse.equals("Correct"))
+                            if (LoginResponse[0].equals("Correct"))
                             {
                                 runOnUiThread(new Runnable()
                                 {
@@ -348,6 +348,7 @@ public class EntryActivity extends AppCompatActivity
                                         SharedPreferences.Editor editor = getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit();
                                         editor.putString("email",Email);
                                         editor.putString("password",Password);
+                                        editor.putString("name",LoginResponse[1]);
                                         editor.putBoolean("LoggedIn",true);
                                         editor.apply();
                                         startActivityForResult(new Intent(EntryActivity.this,ProfileActivity.class),ProfileRequestCode);

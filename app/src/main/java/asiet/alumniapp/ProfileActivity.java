@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -41,8 +40,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class ProfileActivity extends AppCompatActivity
 {
-
-    private TextView mTextMessage;
     private ConstraintLayout LL;
     private int GalleryDialogRequestCode = 0;
     private int CameraDialogrequestCode = 1;
@@ -63,15 +60,12 @@ public class ProfileActivity extends AppCompatActivity
             switch (item.getItemId())
             {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
                     HomePressed();
                     return true;
                 case R.id.navigation_account:
-                    mTextMessage.setText(R.string.title_dashboard);
                     AccountPressed();
                     return true;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
                     NotificationsPressed();
                     return true;
             }
@@ -85,7 +79,6 @@ public class ProfileActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
@@ -97,6 +90,7 @@ public class ProfileActivity extends AppCompatActivity
         SharedPreferences.Editor editor = getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit();
         editor.putString("email","...");
         editor.putString("password","...");
+        editor.putString("name","...");
         editor.putBoolean("LoggedIn",false);
         editor.apply();
         File Image = new File(ProPicPath);
@@ -123,6 +117,8 @@ public class ProfileActivity extends AppCompatActivity
     {
         LL.removeAllViewsInLayout();
         LL.addView(LayoutInflater.from(this).inflate(R.layout.profile_account,LL,false));
+        TextView ProfileNameTV = findViewById(R.id.ProfileNameTV);
+        ProfileNameTV.setText(getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("name",""));
         EA = findViewById(R.id.ProPicUpdateAnim);
         ProPicView = findViewById(R.id.ProPicView);
         ProPicPath = getExternalCacheDir().getAbsolutePath() + "/ProPic.webp";

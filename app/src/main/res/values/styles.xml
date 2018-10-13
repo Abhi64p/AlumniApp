@@ -9,10 +9,4 @@
         <item name="android:colorForeground">@android:color/background_light</item>
         <item name="android:windowBackground">@color/LayoutBG</item>
     </style>
-
-    <style name="ModifiedTheme.Dialog.Alert" parent="Theme.AppCompat.Dialog.Alert">
-        <item name="android:statusBarColor">@color/StatusBar</item>
-        <item name="colorPrimaryDark">@color/StatusBar</item>
-        <item name="android:colorBackground">@color/LayoutBG</item>
-    </style>
 </resources>
