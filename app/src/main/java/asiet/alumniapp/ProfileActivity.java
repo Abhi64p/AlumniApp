@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -42,8 +43,8 @@ public class ProfileActivity extends AppCompatActivity
 {
     private ConstraintLayout LL;
     private int GalleryDialogRequestCode = 0;
-    private int CameraDialogrequestCode = 1;
-    private int ProfilePhotoAutoLoadPermissionrequestCode = 2;
+    private int CameraDialogRequestCode = 1;
+    private int ProfilePhotoAutoLoadPermissionRequestCode = 2;
     private EntryAnimation EA;
     private Thread AnimationThread;
     private ImageView ProPicView;
@@ -102,6 +103,7 @@ public class ProfileActivity extends AppCompatActivity
         finish();
     }
 
+
     public void LogoutButtonPressed(View view)
     {
         Logout();
@@ -135,7 +137,7 @@ public class ProfileActivity extends AppCompatActivity
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i)
                         {
-                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},ProfilePhotoAutoLoadPermissionrequestCode);
+                            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},ProfilePhotoAutoLoadPermissionRequestCode);
                         }
                     })
                     .create().show();
@@ -187,14 +189,22 @@ public class ProfileActivity extends AppCompatActivity
                 @Override
                 public void onClick(View view)
                 {
-                    ContentValues values = new ContentValues();
-                    values.put(MediaStore.Images.Media.TITLE, "New Picture");
-                    values.put(MediaStore.Images.Media.DESCRIPTION, "From your Camera");
-                    CameraImageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, CameraImageUri);
-                    startActivityForResult(intent, CameraDialogrequestCode);
-                    PhotoPicker.dismiss();
+                    try
+                    {
+                        File Image = new File(ProPicPath + "_tmp");
+                        if (Image.exists())
+                            Image.delete();
+                        Image.createNewFile();
+                        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        Uri photoURI = FileProvider.getUriForFile(ProfileActivity.this,"asiet.alumniapp.fileprovider", Image);
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                        startActivityForResult(intent, CameraDialogRequestCode);
+                        PhotoPicker.dismiss();
+                    }
+                    catch(Exception ex)
+                    {
+                        Toast.makeText(ProfileActivity.this, "Can't Load Image!\n" + ex.getMessage(), Toast.LENGTH_LONG).show();
+                    }
                 }
             });
             PhotoPicker.findViewById(R.id.RemoveButton).setOnClickListener(new View.OnClickListener()
@@ -210,7 +220,7 @@ public class ProfileActivity extends AppCompatActivity
                             try
                             {
                                 HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(CommonData.RemoveImageAddress).openConnection();
-                                //urlConnection.setDoInput(true);
+                                urlConnection.setRequestMethod("POST");
                                 urlConnection.setDoOutput(true);
                                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
                                 writer.write("email=" + getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("email",""));
@@ -568,7 +578,7 @@ public class ProfileActivity extends AppCompatActivity
                 BGThread.start();
             }
         }
-        else if(requestCode == CameraDialogrequestCode)
+        else if(requestCode == CameraDialogRequestCode)
         {
             if(resultCode == RESULT_OK)
             {
@@ -581,8 +591,7 @@ public class ProfileActivity extends AppCompatActivity
                     {
                         try
                         {
-                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), CameraImageUri);
-                            StoreImage(bitmap);
+                            StoreImage(BitmapFactory.decodeFile(ProPicPath+"_tmp"));
                             UploadFile(ProPicPath);
                         }
                         catch (final Exception ex)
@@ -607,7 +616,7 @@ public class ProfileActivity extends AppCompatActivity
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == ProfilePhotoAutoLoadPermissionrequestCode)
+        if(requestCode == ProfilePhotoAutoLoadPermissionRequestCode)
         {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED)
             {

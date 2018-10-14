@@ -173,6 +173,7 @@ public class SignUpActivity extends AppCompatActivity
                     HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(CommonData.CheckPhoneAddress).openConnection();
                     urlConnection.setDoInput(true);
                     urlConnection.setDoOutput(true);
+                    urlConnection.setRequestMethod("POST");
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
                     writer.write("phone_number=" + Phone);
                     writer.flush();
@@ -206,6 +207,7 @@ public class SignUpActivity extends AppCompatActivity
                         {
                             urlConnection = (HttpsURLConnection) new URL(CommonData.InsertDetailsAddress).openConnection();
                             urlConnection.setDoOutput(true);
+                            urlConnection.setRequestMethod("POST");
                             writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
                             writer.write("email=" + Email+"&phone_number=" + Phone + "&name=" + Name + "&password=" + Password1 + "&phone_number=" + Phone);
                             writer.flush();
@@ -213,7 +215,11 @@ public class SignUpActivity extends AppCompatActivity
                                 StopAnimation();
                             if (urlConnection.getResponseCode() == HttpsURLConnection.HTTP_OK)
                             {
-                                getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit().putBoolean("LoggedIn",true);
+                                getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit().putBoolean("LoggedIn",true)
+                                        .putString("email",Email)
+                                        .putString("password",Password1)
+                                        .putString("name",Name)
+                                        .apply();
                                 Intent returnIntent = new Intent();
                                 returnIntent.putExtra("Status","Created");
                                 setResult(Activity.RESULT_OK,returnIntent);

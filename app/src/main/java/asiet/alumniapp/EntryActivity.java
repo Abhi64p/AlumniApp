@@ -319,6 +319,7 @@ public class EntryActivity extends AppCompatActivity
                         HttpsURLConnection urlConnection = (HttpsURLConnection) new URL(CommonData.CheckPasswordAddress).openConnection();
                         urlConnection.setDoInput(true);
                         urlConnection.setDoOutput(true);
+                        urlConnection.setRequestMethod("POST");
                         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
                         writer.write("email=" + Email + "&password=" + Password);
                         writer.flush();
