@@ -92,6 +92,7 @@ public class ProfileActivity extends AppCompatActivity
         editor.putString("email","...");
         editor.putString("password","...");
         editor.putString("name","...");
+        editor.putString("token","...");
         editor.putBoolean("LoggedIn",false);
         editor.apply();
         File Image = new File(ProPicPath);

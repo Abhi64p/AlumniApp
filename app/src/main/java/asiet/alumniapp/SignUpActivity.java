@@ -215,10 +215,17 @@ public class SignUpActivity extends AppCompatActivity
                                 StopAnimation();
                             if (urlConnection.getResponseCode() == HttpsURLConnection.HTTP_OK)
                             {
-                                getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit().putBoolean("LoggedIn",true)
+                                BufferedReader Reader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(),"UTF-8"));
+                                StringBuilder stringBuilder = new StringBuilder();
+                                String Line;
+                                while((Line = Reader.readLine()) != null)
+                                    stringBuilder.append(Line);
+                                getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit()
+                                        .putBoolean("LoggedIn",true)
                                         .putString("email",Email)
                                         .putString("password",Password1)
                                         .putString("name",Name)
+                                        .putString("token",stringBuilder.toString())
                                         .apply();
                                 Intent returnIntent = new Intent();
                                 returnIntent.putExtra("Status","Created");

@@ -11,10 +11,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -38,36 +43,12 @@ public class EntryActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entry);
         EA = findViewById(R.id.entryAnimation);
-
-        if(!EA.isRunning)
-            StartAnimation();
-        Thread bg = new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try
-                {
-                    Thread.sleep(2000);
-                    if(EA.isRunning)
-                        StopAnimation();
-                    runOnUiThread(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            LoginSignUp();
-                        }
-                    });
-                }
-                catch(Exception ex){}
-            }
-        });
-        bg.start();
         EmailET = findViewById(R.id.EmailET);
         ContinueButton = findViewById(R.id.ContinueButton);
         LoginButton = findViewById(R.id.LoginButton);
         PasswordET = findViewById(R.id.PasswordET);
+
+        LoginSignUp();
     }
 
     private void StartAnimation()
@@ -120,33 +101,141 @@ public class EntryActivity extends AppCompatActivity
 
         if(!LoggedIn)
         {
-            EmailShowedAtStartup = true;
-            TextView AppNameTV = findViewById(R.id.AppNameTV);
-            Button ContinueButton = findViewById(R.id.ContinueButton);
-
-            float CurrentY = AppNameTV.getY();
-            float NewY = CurrentY - (CurrentY/2);
-
-            EA.setY(EA.getY() + NewY);
-
-            ViewTranslationAnimation textViewTranslation = new ViewTranslationAnimation(AppNameTV);
-            ViewAlphaAnimation alphaAnimEmailET = new ViewAlphaAnimation(EmailET);
-            ViewAlphaAnimation alphaAnimContinueButton = new ViewAlphaAnimation(ContinueButton);
-
-            textViewTranslation.setDuration(200);
-            alphaAnimEmailET.setDuration(500);
-            alphaAnimContinueButton.setDuration(500);
-
-            textViewTranslation.setNewValue(NewY);
-            alphaAnimEmailET.setNewValue(1);
-            alphaAnimContinueButton.setNewValue(1);
-
-            AppNameTV.startAnimation(textViewTranslation);
-            EmailET.startAnimation(alphaAnimEmailET);
-            ContinueButton.startAnimation(alphaAnimContinueButton);
+            Thread animThread = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                        runOnUiThread(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                ShowLoginMenu();
+                            }
+                        });
+                }
+            });
+            animThread.start();
         }
         else
-            startActivityForResult(new Intent(EntryActivity.this,ProfileActivity.class),ProfileRequestCode);
+        {
+            if(!EA.isRunning)
+                StartAnimation();
+            Thread TokenCheckThread = new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    CheckToken();
+                }
+            });
+            TokenCheckThread.start();
+        }
+
+    }
+
+    private void CheckToken()
+    {
+        try
+        {
+            SharedPreferences SP = getSharedPreferences(CommonData.SP,MODE_PRIVATE);
+            String Email = SP.getString("email",null);
+            String Token = SP.getString("token",null);
+            HttpsURLConnection connection = (HttpsURLConnection) new URL(CommonData.CheckTokenAddress).openConnection();
+            connection.setDoInput(true);
+            connection.setDoOutput(true);
+            connection.setRequestMethod("POST");
+            BufferedWriter Writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(),"UTF-8"));
+            Writer.write("token=" + Token + "&email=" + Email);
+            Writer.flush();
+            if(connection.getResponseCode() == HttpURLConnection.HTTP_OK)
+            {
+                StringBuilder stringBuilder = new StringBuilder();
+                String Line;
+                BufferedReader Reader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"));
+                while((Line = Reader.readLine()) != null)
+                    stringBuilder.append(Line);
+                if(stringBuilder.toString().equals("Correct"))
+                {
+                    runOnUiThread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            if(EA.isRunning)
+                                StopAnimation();
+                            startActivityForResult(new Intent(EntryActivity.this,ProfileActivity.class),ProfileRequestCode);
+                        }
+                    });
+                }
+                else
+                {
+                    runOnUiThread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            if(EA.isRunning)
+                                StopAnimation();
+                            ShowLoginMenu();
+                            Toast.makeText(EntryActivity.this, "Please Login Again", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    SharedPreferences.Editor editor = getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit();
+                    editor.putString("email","...");
+                    editor.putString("password","...");
+                    editor.putString("name","...");
+                    editor.putString("token","...");
+                    editor.putBoolean("LoggedIn",false);
+                    editor.apply();
+                    File Image = new File(getExternalCacheDir().getAbsolutePath() + "/ProPic.webp");
+                    if(Image.exists())
+                        Image.delete();
+                }
+            }
+        }
+        catch(Exception ex)
+        {
+            runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    if(EA.isRunning)
+                        StopAnimation();
+                    findViewById(R.id.ConnectionErrTV).setVisibility(View.VISIBLE);
+                }
+            });
+        }
+    }
+
+    private void ShowLoginMenu()
+    {
+        EmailShowedAtStartup = true;
+        TextView AppNameTV = findViewById(R.id.AppNameTV);
+        Button ContinueButton = findViewById(R.id.ContinueButton);
+
+        float CurrentY = AppNameTV.getY();
+        float NewY = CurrentY - (CurrentY/2);
+
+        EA.setY(EA.getY() + NewY);
+
+        ViewTranslationAnimation textViewTranslation = new ViewTranslationAnimation(AppNameTV);
+        ViewAlphaAnimation alphaAnimEmailET = new ViewAlphaAnimation(EmailET);
+        ViewAlphaAnimation alphaAnimContinueButton = new ViewAlphaAnimation(ContinueButton);
+
+        textViewTranslation.setDuration(200);
+        alphaAnimEmailET.setDuration(500);
+        alphaAnimContinueButton.setDuration(500);
+
+        textViewTranslation.setNewValue(NewY);
+        alphaAnimEmailET.setNewValue(1);
+        alphaAnimContinueButton.setNewValue(1);
+
+        AppNameTV.startAnimation(textViewTranslation);
+        EmailET.startAnimation(alphaAnimEmailET);
+        ContinueButton.startAnimation(alphaAnimContinueButton);
     }
 
     public void ContinueButtonPressed(View view)
@@ -257,6 +346,8 @@ public class EntryActivity extends AppCompatActivity
         ContinueButton.startAnimation(ContinueAnim);
         PasswordET.startAnimation(PasswordAnim);
         LoginButton.startAnimation(LoginAnim);
+
+        PasswordET.requestFocus();
     }
 
     private void ShowEmailBox()
@@ -351,6 +442,7 @@ public class EntryActivity extends AppCompatActivity
                                         editor.putString("password",Password);
                                         editor.putString("name",LoginResponse[1]);
                                         editor.putBoolean("LoggedIn",true);
+                                        editor.putString("token",LoginResponse[2]);
                                         editor.apply();
                                         startActivityForResult(new Intent(EntryActivity.this,ProfileActivity.class),ProfileRequestCode);
                                     }
@@ -396,6 +488,22 @@ public class EntryActivity extends AppCompatActivity
             });
             PasswordCheckingThread.start();
         }
+    }
+
+    public void ConnectAgainPressed(View view)
+    {
+        view.setVisibility(View.GONE);
+        if(!EA.isRunning)
+            StartAnimation();
+        Thread TokenCheckThread = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                CheckToken();
+            }
+        });
+        TokenCheckThread.start();
     }
 
     @Override
