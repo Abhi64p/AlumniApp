@@ -2,7 +2,6 @@ package asiet.alumniapp;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,11 +44,11 @@ public class ProfileActivity extends AppCompatActivity
     private int GalleryDialogRequestCode = 0;
     private int CameraDialogRequestCode = 1;
     private int ProfilePhotoAutoLoadPermissionRequestCode = 2;
+    private int ProfileComplitionActivityRequestCode = 3;
     private EntryAnimation EA;
     private Thread AnimationThread;
     private ImageView ProPicView;
     private String ProPicPath;
-    private Uri CameraImageUri;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener()
@@ -84,6 +83,24 @@ public class ProfileActivity extends AppCompatActivity
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         LL = findViewById(R.id.ProfileLayout);
+        ProPicPath = getExternalCacheDir().getAbsolutePath() + "/ProPic.webp";
+
+        if(!getSharedPreferences(CommonData.SP,MODE_PRIVATE).getBoolean("profile_completed",false))
+        {
+            new AlertDialog.Builder(this)
+                    .setMessage("We need more basic info about you!")
+                    .setPositiveButton("Okay", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+                            Intent intent = new Intent(ProfileActivity.this,ProfileCompletionActivity.class);
+                            startActivityForResult(intent,ProfileComplitionActivityRequestCode);
+                        }
+                    })
+                    .setCancelable(false)
+                    .create().show();
+        }
     }
 
     private void Logout()
@@ -94,6 +111,8 @@ public class ProfileActivity extends AppCompatActivity
         editor.putString("name","...");
         editor.putString("token","...");
         editor.putBoolean("LoggedIn",false);
+        editor.putString("username","...");
+        editor.putBoolean("profile_completed",false);
         editor.apply();
         File Image = new File(ProPicPath);
         if(Image.exists())
@@ -124,7 +143,6 @@ public class ProfileActivity extends AppCompatActivity
         ProfileNameTV.setText(getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("name",""));
         EA = findViewById(R.id.ProPicUpdateAnim);
         ProPicView = findViewById(R.id.ProPicView);
-        ProPicPath = getExternalCacheDir().getAbsolutePath() + "/ProPic.webp";
         if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
             LoadImageToView();
         else
@@ -224,7 +242,7 @@ public class ProfileActivity extends AppCompatActivity
                                 urlConnection.setRequestMethod("POST");
                                 urlConnection.setDoOutput(true);
                                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
-                                writer.write("email=" + getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("email",""));
+                                writer.write("username=" + getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("username",""));
                                 writer.flush();
                                 if (urlConnection.getResponseCode() == HttpsURLConnection.HTTP_OK)
                                 {
@@ -285,7 +303,7 @@ public class ProfileActivity extends AppCompatActivity
     {
         try
         {
-            String email = getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("email",null);
+            String username = getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("username",null);
             String boundary = "*****" + Long.toString(System.currentTimeMillis()) + "*****";
             int bytesRead, bytesAvailable, bufferSize;
             byte[] buffer;
@@ -301,7 +319,7 @@ public class ProfileActivity extends AppCompatActivity
             connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
             outputStream.writeBytes("--" + boundary + "\r\n");
-            outputStream.writeBytes("Content-Disposition: form-data; name=\"img_upload\"; filename=\"" + email + ".webp" + "\"" + "\r\n");
+            outputStream.writeBytes("Content-Disposition: form-data; name=\"img_upload\"; filename=\"" + username + ".webp" + "\"" + "\r\n");
             outputStream.writeBytes("Content-Type: image/jpeg" + "\r\n");
             outputStream.writeBytes("Content-Transfer-Encoding: binary" + "\r\n");
             outputStream.writeBytes("\r\n");
@@ -390,13 +408,13 @@ public class ProfileActivity extends AppCompatActivity
         {
             byte[] buffer = new byte[4096];
             int BytesRead;
-            String email = getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("email",null);
+            String username = getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("username",null);
             HttpsURLConnection connection = (HttpsURLConnection) new URL(CommonData.DownloadImageAddress).openConnection();
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(), "UTF-8"));
-            writer.write("email=" + email);
+            writer.write("email=" + username);
             writer.flush();
             int ConnectionResponse = connection.getResponseCode();
             if (ConnectionResponse == HttpsURLConnection.HTTP_OK)
@@ -609,6 +627,36 @@ public class ProfileActivity extends AppCompatActivity
                     }
                 });
                 BGThread.start();
+            }
+        }
+        else if(requestCode == ProfileComplitionActivityRequestCode)
+        {
+            if(resultCode == RESULT_OK)
+                getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit().putBoolean("profile_completed",true).apply();
+            else
+            {
+                new AlertDialog.Builder(this)
+                        .setTitle("Incomplete Profile")
+                        .setMessage("You must complete your profie to continue!")
+                        .setPositiveButton("Okey", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                Intent intent = new Intent(ProfileActivity.this,ProfileCompletionActivity.class);
+                                startActivityForResult(intent,ProfileComplitionActivityRequestCode);
+                            }
+                        })
+                        .setNegativeButton("Logout", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                Logout();
+                            }
+                        })
+                        .setCancelable(false)
+                        .create().show();
             }
         }
     }

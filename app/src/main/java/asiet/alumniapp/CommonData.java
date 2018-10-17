@@ -11,4 +11,5 @@ public class CommonData
     static final String DownloadImageAddress = "https://squareskipper.000webhostapp.com/DownloadImage.php";
     static final String RemoveImageAddress = "https://squareskipper.000webhostapp.com/RemoveImage.php";
     static final String CheckTokenAddress = "https://squareskipper.000webhostapp.com/checkToken.php";
+    static final String UpdateProfileAddress = "https://squareskipper.000webhostapp.com/UpdateProfile.php";
 }

@@ -11,13 +11,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -188,6 +185,8 @@ public class EntryActivity extends AppCompatActivity
                     editor.putString("name","...");
                     editor.putString("token","...");
                     editor.putBoolean("LoggedIn",false);
+                    editor.putString("username","...");
+                    editor.putBoolean("profile_completed",false);
                     editor.apply();
                     File Image = new File(getExternalCacheDir().getAbsolutePath() + "/ProPic.webp");
                     if(Image.exists())
@@ -443,6 +442,11 @@ public class EntryActivity extends AppCompatActivity
                                         editor.putString("name",LoginResponse[1]);
                                         editor.putBoolean("LoggedIn",true);
                                         editor.putString("token",LoginResponse[2]);
+                                        editor.putString("username",LoginResponse[3]);
+                                        boolean ProfileCompleted = false;
+                                        if(LoginResponse[4].equals("1"))
+                                            ProfileCompleted = true;
+                                        editor.putBoolean("profile_completed",ProfileCompleted);
                                         editor.apply();
                                         startActivityForResult(new Intent(EntryActivity.this,ProfileActivity.class),ProfileRequestCode);
                                     }
