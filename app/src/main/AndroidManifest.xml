@@ -16,8 +16,7 @@
         android:theme="@style/ModifiedTheme">
         <activity
             android:name=".EntryActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/ModifiedTheme">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
@@ -39,10 +38,17 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".ProfileCompletionActivity"></activity>
+        <activity
+            android:name=".EditAccountActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".AccountActivity" />
+        <activity android:name=".NotificationActivity" />
+        <activity android:name=".ShareActivity" />
+        <activity android:name=".FeedbackActivity" />
+        <activity android:name=".WhatsnewActivity"></activity>
     </application>
 
 </manifest>

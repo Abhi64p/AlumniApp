@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Alumni App</string>
+    <string name="app_name">ASIET Alumni</string>
     <string name="app_version">Version : 1.0.0</string>
     <string name="title_activity_sign_up">Sign Up</string>
     <string name="title_activity_profile1">Profile1Activity</string>

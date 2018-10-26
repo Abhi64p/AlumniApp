@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditAccountActivity">
+
+    <ScrollView
+        android:id="@+id/UpdateProfileSV"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/UpdateProfileSV"
+            app:layout_constraintEnd_toEndOf="@+id/UpdateProfileSV"
+            app:layout_constraintStart_toStartOf="@+id/UpdateProfileSV"
+            app:layout_constraintTop_toTopOf="@+id/UpdateProfileSV">
+
+            <EditText
+                android:id="@+id/CurrentJobET"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:layout_marginEnd="8dp"
+                android:ems="10"
+                android:hint="Current Job"
+                android:inputType="text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <EditText
+                android:id="@+id/ExpertiseET"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:layout_marginEnd="8dp"
+                android:ems="10"
+                android:hint="Area Of Expertise"
+                android:inputType="text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/CurrentJobET" />
+
+            <EditText
+                android:id="@+id/CourseTimeFrameET"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:layout_marginEnd="8dp"
+                android:ems="10"
+                android:hint="Course Time Frame"
+                android:inputType="text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ExpertiseET" />
+
+            <EditText
+                android:id="@+id/UniversityRollNoET"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:layout_marginEnd="8dp"
+                android:ems="10"
+                android:hint="University Roll Number"
+                android:inputType="text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/CourseTimeFrameET" />
+
+            <Button
+                android:id="@+id/UpdateProfileContinueButton"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/button_shape"
+                android:onClick="UpdateProfilePressed"
+                android:shadowColor="#A8A8A8"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="5"
+                android:text="Update Profile"
+                android:textAllCaps="false"
+                android:textSize="20sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/DepartmentET" />
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="Current Job : "
+                app:layout_constraintBaseline_toBaselineOf="@+id/CurrentJobET"
+                app:layout_constraintEnd_toStartOf="@+id/CurrentJobET"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="Area Of Expertise : "
+                app:layout_constraintBaseline_toBaselineOf="@+id/ExpertiseET"
+                app:layout_constraintEnd_toStartOf="@+id/ExpertiseET"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="Course Time Frame : "
+                app:layout_constraintBaseline_toBaselineOf="@+id/CourseTimeFrameET"
+                app:layout_constraintEnd_toStartOf="@+id/CourseTimeFrameET"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="University Roll No. : "
+                app:layout_constraintBaseline_toBaselineOf="@+id/UniversityRollNoET"
+                app:layout_constraintEnd_toStartOf="@+id/UniversityRollNoET"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <EditText
+                android:id="@+id/PassoutYearET"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:layout_marginEnd="8dp"
+                android:ems="10"
+                android:hint="Passout Year"
+                android:inputType="number"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/UniversityRollNoET" />
+
+            <EditText
+                android:id="@+id/DepartmentET"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="35dp"
+                android:layout_marginEnd="8dp"
+                android:ems="10"
+                android:hint="Department"
+                android:inputType="text"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/PassoutYearET" />
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="Passout Year : "
+                app:layout_constraintBaseline_toBaselineOf="@+id/PassoutYearET"
+                app:layout_constraintEnd_toStartOf="@+id/PassoutYearET"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/textView13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="Department : "
+                app:layout_constraintBaseline_toBaselineOf="@+id/DepartmentET"
+                app:layout_constraintEnd_toStartOf="@+id/DepartmentET"
+                app:layout_constraintStart_toStartOf="parent" />
+        </android.support.constraint.ConstraintLayout>
+    </ScrollView>
+
+    <asiet.alumniapp.EntryAnimation
+        android:id="@+id/UpdateProfileAnim"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/UpdateProfileSV"
+        app:layout_constraintEnd_toEndOf="@+id/UpdateProfileSV"
+        app:layout_constraintStart_toStartOf="@+id/UpdateProfileSV"
+        app:layout_constraintTop_toTopOf="@+id/UpdateProfileSV" />
+
+</android.support.constraint.ConstraintLayout>

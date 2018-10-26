@@ -5,15 +5,13 @@
         android:id="@+id/navigation_home"
         android:icon="@drawable/ic_home_black_24dp"
         android:title="@string/title_home" />
-
     <item
-        android:id="@+id/navigation_account"
-        android:icon="@drawable/ic_dashboard_black_24dp"
-        android:title="@string/title_dashboard" />
-
+        android:id="@+id/navigation_poll"
+        android:icon="@drawable/poll_icon"
+        android:title="Poll" />
     <item
-        android:id="@+id/navigation_notifications"
-        android:icon="@drawable/ic_notifications_black_24dp"
-        android:title="@string/title_notifications" />
+        android:id="@+id/navigation_jobs"
+        android:icon="@drawable/jobs_icon"
+        android:title="Jobs" />
 
 </menu>

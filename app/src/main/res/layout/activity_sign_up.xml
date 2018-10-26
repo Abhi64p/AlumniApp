@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/LayoutBG"
     tools:context=".SignUpActivity">
 
     <ScrollView
@@ -31,7 +30,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:text="+91"
-                android:textColor="@android:color/background_light"
                 android:textSize="18sp"
                 app:layout_constraintBaseline_toBaselineOf="@+id/signUpPhoneET"
                 app:layout_constraintEnd_toStartOf="@+id/signUpPhoneET" />
@@ -43,11 +41,9 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="35dp"
                 android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/Line"
                 android:ems="10"
                 android:hint="Enter Phone Number"
                 android:inputType="phone"
-                android:textColor="@android:color/background_light"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/SignUpPassword2ET" />
@@ -61,7 +57,6 @@
                 android:layout_marginTop="15dp"
                 android:text="Fill up everything to create an account"
                 android:textAlignment="center"
-                android:textColor="@android:color/background_light"
                 android:textSize="15sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -81,7 +76,6 @@
                 android:scrollHorizontally="true"
                 android:singleLine="true"
                 android:text="E-Mail :"
-                android:textColor="@android:color/background_light"
                 android:textSize="25sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -94,11 +88,9 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="35dp"
-                android:backgroundTint="@color/Line"
                 android:ems="10"
                 android:hint="Enter Password"
                 android:inputType="textPassword"
-                android:textColor="@android:color/background_light"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/SignUpNameET" />
@@ -110,11 +102,9 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="35dp"
-                android:backgroundTint="@color/Line"
                 android:ems="10"
                 android:hint="Confirm Password"
                 android:inputType="textPassword"
-                android:textColor="@android:color/background_light"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/SignUpPassword1ET" />
@@ -148,11 +138,9 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="35dp"
                 android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/Line"
                 android:ems="10"
                 android:hint="Enter Name"
                 android:inputType="textPersonName"
-                android:textColor="@android:color/background_light"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/SignUpEmailTV" />
@@ -172,48 +160,10 @@
                 android:shadowRadius="5"
                 android:text="Create Account"
                 android:textAllCaps="false"
-                android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/DeptET" />
-
-            <EditText
-                android:id="@+id/DOBTV"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="35dp"
-                android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/Line"
-                android:ems="10"
-                android:focusableInTouchMode="false"
-                android:hint="Enter Date of Birth"
-                android:inputType="date"
-                android:onClick="DateOfBirthClicked"
-                android:textColor="@android:color/white"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/signUpPhoneET" />
-
-            <EditText
-                android:id="@+id/DeptET"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="35dp"
-                android:layout_marginEnd="8dp"
-                android:backgroundTint="@color/Line"
-                android:textColor="@android:color/white"
-                android:ems="10"
-                android:focusableInTouchMode="false"
-                android:hint="Enter Department"
-                android:onClick="DeptETClicked"
-                tools:layout_editor_absoluteX="70dp"
-                tools:layout_editor_absoluteY="513dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/DOBTV" />
 
         </android.support.constraint.ConstraintLayout>
     </ScrollView>

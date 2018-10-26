@@ -1,6 +1,7 @@
 package asiet.alumniapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,58 +17,95 @@ import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
 
-public class ProfileCompletionActivity extends AppCompatActivity
+public class EditAccountActivity extends AppCompatActivity
 {
 
-    private String CurrentJob, Expertise, CourseTimeFrame, UniversityRollNo;
+    private String CurrentJob, Expertise, CourseTimeFrame, UniversityRollNo, PassoutYear, Department;
     private Button UpdateButton;
     private ScrollView SV;
     private EntryAnimation EA;
     private Thread AnimationThread;
+    private Boolean Complete;
+    private EditText CurrentJobET;
+    private EditText ExpertiseET;
+    private EditText CourseTimeFrameET;
+    private EditText UniversityRollNoET;
+    private EditText PassoutYearET;
+    private EditText DepartmentET;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile_completion);
+        setContentView(R.layout.activity_edit_account);
         UpdateButton = findViewById(R.id.UpdateProfileContinueButton);
         SV = findViewById(R.id.UpdateProfileSV);
         EA = findViewById(R.id.UpdateProfileAnim);
+        CurrentJobET = findViewById(R.id.CurrentJobET);
+        ExpertiseET = findViewById(R.id.ExpertiseET);
+        CourseTimeFrameET = findViewById(R.id.CourseTimeFrameET);
+        UniversityRollNoET = findViewById(R.id.UniversityRollNoET);
+        PassoutYearET = findViewById(R.id.PassoutYearET);
+        DepartmentET = findViewById(R.id.DepartmentET);
+
+        LoadData();
+    }
+
+    private void LoadData()
+    {
+        SharedPreferences SP = getSharedPreferences(CommonData.SP,MODE_PRIVATE);
+        CurrentJobET.setText(SP.getString("current_job",""));
+        ExpertiseET.setText(SP.getString("area_of_expertise",""));
+        CourseTimeFrameET.setText(SP.getString("course_time_frame",""));
+        UniversityRollNoET.setText(SP.getString("university_roll_no",""));
+        PassoutYearET.setText(SP.getString("passout_year",""));
+        DepartmentET.setText(SP.getString("department",""));
     }
 
     public void UpdateProfilePressed(View view)
     {
-        EditText CurrentJobET = findViewById(R.id.CurrentJobET);
-        EditText ExpertiseET = findViewById(R.id.ExpertiseET);
-        EditText CoureTimeFrameET = findViewById(R.id.CourseTimeFrameET);
-        EditText UniversityRollNoET = findViewById(R.id.UniversityRollNoET);
-
         CurrentJob = CurrentJobET.getText().toString();
         Expertise = ExpertiseET.getText().toString();
-        CourseTimeFrame = CoureTimeFrameET.getText().toString();
+        CourseTimeFrame = CourseTimeFrameET.getText().toString();
         UniversityRollNo = UniversityRollNoET.getText().toString();
+        PassoutYear = PassoutYearET.getText().toString();
+        Department = DepartmentET.getText().toString();
+
+        Complete = true;
+        int Update = 0;
 
         if(CurrentJob.isEmpty())
         {
-            CurrentJobET.requestFocus();
-            CurrentJobET.setError("Enter current job here!");
+            Complete=false;
+            Update++;
         }
-        else if(Expertise.isEmpty())
+        if(Expertise.isEmpty())
         {
-            ExpertiseET.requestFocus();
-            ExpertiseET.setError("Enter area of expertise here!");
+            Complete=false;
+            Update++;
         }
-        else if(CourseTimeFrame.isEmpty())
+        if(CourseTimeFrame.isEmpty())
         {
-            CoureTimeFrameET.requestFocus();
-            CoureTimeFrameET.setError("Enter course time frame here!");
+            Complete=false;
+            Update++;
         }
-        else if(UniversityRollNo.isEmpty())
+        if(UniversityRollNo.isEmpty())
         {
-            UniversityRollNoET.requestFocus();
-            UniversityRollNoET.setError("Enter university roll number here!");
+            Complete=false;
+            Update++;
         }
-        else
+        if(PassoutYear.isEmpty())
+        {
+            Complete=false;
+            Update++;
+        }
+        if(Department.isEmpty())
+        {
+            Complete=false;
+            Update++;
+        }
+
+        if(Update != 6)
         {
             Thread ProfileUpdationThread = new Thread(new Runnable()
             {
@@ -80,6 +118,7 @@ public class ProfileCompletionActivity extends AppCompatActivity
             SV.setAlpha(0.5f);
             if(!EA.isRunning)
                 StartAnimation();
+            UpdateButton.setEnabled(false);
             ProfileUpdationThread.start();
         }
     }
@@ -93,16 +132,28 @@ public class ProfileCompletionActivity extends AppCompatActivity
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(),"UTF-8"));
-            bufferedWriter.write("username=" + Username + "&CurrentJob=" + CurrentJob + "&Expertise=" + Expertise + "&CourseTimeFrame=" + CourseTimeFrame + "&UniversityRollNo=" + UniversityRollNo);
+            int Completed = 0;
+            if(Complete)
+                Completed = 1;
+            bufferedWriter.write("username=" + Username + "&CurrentJob=" + CurrentJob + "&Expertise=" + Expertise + "&CourseTimeFrame=" + CourseTimeFrame + "&UniversityRollNo=" + UniversityRollNo +"&Completed=" + Completed + "&passout_year=" + PassoutYear + "&department=" + Department);
             bufferedWriter.flush();
             if(connection.getResponseCode() == HttpURLConnection.HTTP_OK)
             {
-                getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit()
-                        .putBoolean("profile_completed",true)
-                        .apply();
-                Intent returnIntent = new Intent();
-                setResult(RESULT_OK,returnIntent);
-                finish();
+                SharedPreferences.Editor editor = getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit();
+                if(Complete)
+                    editor.putBoolean("profile_completed",true);
+                else
+                    editor.putBoolean("profile_completed",false);
+                editor.putString("current_job",CurrentJob);
+                editor.putString("area_of_expertise",Expertise);
+                editor.putString("course_time_frame",CourseTimeFrame);
+                editor.putString("university_roll_no",UniversityRollNo);
+                editor.putString("passout_year", PassoutYear);
+                editor.putString("department", Department);
+                editor.apply();
+
+                setResult(RESULT_OK);
+                this.finish();
             }
             else
             {
@@ -114,7 +165,8 @@ public class ProfileCompletionActivity extends AppCompatActivity
                         SV.setAlpha(1);
                         if(EA.isRunning)
                                 StopAnimation();
-                        Toast.makeText(ProfileCompletionActivity.this, "Bad Internet Connection!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditAccountActivity.this, "Bad Internet Connection!", Toast.LENGTH_SHORT).show();
+                        UpdateButton.setEnabled(true);
                     }
                 });
             }
@@ -129,7 +181,8 @@ public class ProfileCompletionActivity extends AppCompatActivity
                     SV.setAlpha(1);
                     if(EA.isRunning)
                         StopAnimation();
-                    Toast.makeText(ProfileCompletionActivity.this, "Bad Internet Connection!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditAccountActivity.this, "Bad Internet Connection!", Toast.LENGTH_SHORT).show();
+                    UpdateButton.setEnabled(true);
                 }
             });
         }

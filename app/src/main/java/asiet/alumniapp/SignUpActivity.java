@@ -39,7 +39,6 @@ public class SignUpActivity extends AppCompatActivity
     private String Email, Name, Password1, Phone, DOB, DeptSelected = "";
     private Button ContinueButton;
     private EditText SignUpPhoneET;
-    private static EditText DOBTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -60,7 +59,6 @@ public class SignUpActivity extends AppCompatActivity
         TV.setText("E-Mail : " + Email);
         TV.setSelected(true);
         ContinueButton = findViewById(R.id.SignUpContinueButton);
-        DOBTV = findViewById(R.id.DOBTV);
     }
 
     private View.OnTouchListener MaskTouchListener = new View.OnTouchListener()
@@ -90,13 +88,11 @@ public class SignUpActivity extends AppCompatActivity
     {
         EditText SignUpNameET = findViewById(R.id.SignUpNameET);
         SignUpPhoneET = findViewById(R.id.signUpPhoneET);
-        EditText DeptET = findViewById(R.id.DeptET);
 
         Name = SignUpNameET.getText().toString();
         Phone = SignUpPhoneET.getText().toString();
         Password1 = SignUpPassword1ET.getText().toString();
         final String Password2 = SignUpPassword2ET.getText().toString();
-        DOB = DOBTV.getText().toString();
 
         if(Name.isEmpty())
         {
@@ -128,15 +124,10 @@ public class SignUpActivity extends AppCompatActivity
             SignUpPhoneET.requestFocus();
             SignUpPhoneET.setError("Enter your phone number here!");
         }
-        else if(DOB.isEmpty())
-            DOBTV.setError("Enter date of birth here!");
-        else if(DeptSelected.isEmpty())
-            DeptET.setError("Enter department here!");
         else
         {
             Phone = "+91" + Phone;
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setCancelable(false);
             builder.setMessage("Email : " + Email + "\nPhone : " + Phone);
             builder.setTitle("Is this correct ?");
             builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener()
@@ -222,7 +213,7 @@ public class SignUpActivity extends AppCompatActivity
                             urlConnection.setDoOutput(true);
                             urlConnection.setRequestMethod("POST");
                             writer = new BufferedWriter(new OutputStreamWriter(urlConnection.getOutputStream(), "UTF-8"));
-                            writer.write("email=" + Email+"&phone_number=" + Phone + "&name=" + Name + "&password=" + Password1 + "&phone_number=" + Phone + "&department=" + DeptSelected + "&year=" + DOB.split("/")[2]);
+                            writer.write("email=" + Email+"&phone_number=" + Phone + "&name=" + Name + "&password=" + Password1 + "&phone_number=" + Phone);
                             writer.flush();
                             if(EA.isRunning)
                                 StopAnimation();
@@ -233,7 +224,7 @@ public class SignUpActivity extends AppCompatActivity
                                 String Line;
                                 while((Line = Reader.readLine()) != null)
                                     stringBuilder.append(Line);
-                                String ReturnData[] = stringBuilder.toString().split(":");
+                                final String ReturnData[] = stringBuilder.toString().split(":");
                                 getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit()
                                         .putBoolean("LoggedIn",true)
                                         .putString("email",Email)
@@ -245,26 +236,7 @@ public class SignUpActivity extends AppCompatActivity
                                 Intent returnIntent = new Intent();
                                 returnIntent.putExtra("Status","Created");
                                 setResult(Activity.RESULT_OK,returnIntent);
-                                runOnUiThread(new Runnable()
-                                {
-                                    @Override
-                                    public void run()
-                                    {
-                                        new AlertDialog.Builder(SignUpActivity.this)
-                                                .setTitle("Account Created")
-                                                .setMessage("You will be logged into your account automatically")
-                                                .setPositiveButton("Dismiss", new DialogInterface.OnClickListener()
-                                                {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialogInterface, int i)
-                                                    {
-                                                        SignUpActivity.this.finish();
-                                                    }
-                                                })
-                                                .setCancelable(false)
-                                                .create().show();
-                                    }
-                                });
+                                SignUpActivity.this.finish();
                             }
                             else
                             {
@@ -320,7 +292,7 @@ public class SignUpActivity extends AppCompatActivity
         PhoneCheckThread.start();
     }
 
-    public void DateOfBirthClicked(View view)
+    /*public void DateOfBirthClicked(View view)
     {
         DialogFragment fragment = new DatePickerFragment();
         ((DatePickerFragment) fragment).setDate(DOBTV.getText().toString());
@@ -359,7 +331,7 @@ public class SignUpActivity extends AppCompatActivity
             }
         });
         builder.create().show();
-    }
+    }*/
 
     private void StartAnimation()
     {

@@ -4,51 +4,50 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/LayoutBG"
     tools:context=".ProfileActivity">
 
     <ImageButton
         android:id="@+id/GalleryButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="41dp"
         android:background="@android:color/transparent"
         android:scaleX="1.5"
         android:scaleY="1.5"
         android:src="@drawable/gallery_icon"
         android:tintMode="multiply"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/CameraButton"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
     <ImageButton
         android:id="@+id/CameraButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="8dp"
         android:background="@android:color/transparent"
         android:scaleX="1.5"
         android:scaleY="1.5"
         android:src="@drawable/camera_icon"
         android:tintMode="multiply"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
     <ImageButton
         android:id="@+id/RemoveButton"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="45dp"
+        android:layout_marginTop="30dp"
         android:background="@android:color/transparent"
         android:scaleX="1.5"
         android:scaleY="1.5"
         android:tintMode="multiply"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/CameraButton"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView9"
         app:srcCompat="@drawable/remove_icon" />
 
     <TextView
@@ -57,12 +56,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="35dp"
-        android:shadowColor="@android:color/black"
-        android:shadowDx="10"
-        android:shadowDy="10"
-        android:shadowRadius="10"
+        android:paddingBottom="30dp"
         android:text="Gallery"
-        android:textColor="@color/Line"
+        android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/textView7"
         app:layout_constraintTop_toBottomOf="@+id/GalleryButton" />
 
@@ -73,12 +69,9 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:shadowColor="@android:color/black"
-        android:shadowDx="10"
-        android:shadowDy="10"
-        android:shadowRadius="10"
+        android:paddingBottom="30dp"
         android:text="Camera"
-        android:textColor="@color/Line"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/CameraButton" />
@@ -89,12 +82,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="35dp"
         android:layout_marginTop="8dp"
-        android:shadowColor="@android:color/black"
-        android:shadowDx="10"
-        android:shadowDy="10"
-        android:shadowRadius="10"
+        android:paddingBottom="30dp"
         android:text="Remove"
-        android:textColor="@color/Line"
+        android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/textView7"
         app:layout_constraintTop_toBottomOf="@+id/RemoveButton" />
 
@@ -103,17 +93,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="30dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="40dp"
-        android:shadowColor="@android:color/black"
-        android:shadowDx="10"
-        android:shadowDy="10"
-        android:shadowRadius="15"
         android:text="Change Photo"
-        android:textColor="@color/Line"
         android:textSize="24sp"
-        app:layout_constraintBottom_toTopOf="@+id/CameraButton"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

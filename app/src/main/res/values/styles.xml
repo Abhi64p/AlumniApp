@@ -1,13 +1,12 @@
 <resources>
-
-    <style name="ModifiedTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/StatusBar</item>
-        <item name="colorPrimary">@color/Line</item>
-        <item name="android:colorBackground">@color/LayoutBG</item>
-        <item name="android:navigationBarColor">@android:color/black</item>
-        <item name="colorPrimaryDark">@color/StatusBar</item>
-        <item name="android:colorForeground">@android:color/background_light</item>
-        <item name="android:windowBackground">@color/LayoutBG</item>
-        <item name="android:textColorPrimary">@android:color/black</item>
+    <style name="ModifiedTheme" parent="Theme.AppCompat.Light.NoActionBar" >
+        <item name="android:colorPrimary">@color/primaryColor</item>
+        <item name="android:colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="android:textColorPrimary">@color/primaryTextColor</item>
+        <item name="android:textColorSecondary">@color/secondaryColor</item>
+        <item name="android:statusBarColor">@color/primaryDarkColor</item>
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryDark">@color/primaryDarkColor</item>
+        <item name="colorAccent">@color/greyBlack</item>
     </style>
 </resources>

@@ -11,9 +11,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
@@ -45,7 +47,29 @@ public class EntryActivity extends AppCompatActivity
         LoginButton = findViewById(R.id.LoginButton);
         PasswordET = findViewById(R.id.PasswordET);
 
-        LoginSignUp();
+        Thread IntroAimThread = new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    Thread.sleep(10);
+                }
+                catch(Exception ex){}
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        LoginSignUp();
+                    }
+                });
+            }
+        });
+        if(!EA.isRunning)
+            StartAnimation();
+        IntroAimThread.start();
     }
 
     private void StartAnimation()
@@ -95,30 +119,14 @@ public class EntryActivity extends AppCompatActivity
     private void LoginSignUp()
     {
         boolean LoggedIn = getSharedPreferences(CommonData.SP,MODE_PRIVATE).getBoolean("LoggedIn",false);
-
         if(!LoggedIn)
         {
-            Thread animThread = new Thread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                        runOnUiThread(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                ShowLoginMenu();
-                            }
-                        });
-                }
-            });
-            animThread.start();
+            if(EA.isRunning)
+                StopAnimation();
+            ShowLoginMenu();
         }
         else
         {
-            if(!EA.isRunning)
-                StartAnimation();
             Thread TokenCheckThread = new Thread(new Runnable()
             {
                 @Override
@@ -129,7 +137,6 @@ public class EntryActivity extends AppCompatActivity
             });
             TokenCheckThread.start();
         }
-
     }
 
     private void CheckToken()
@@ -137,14 +144,14 @@ public class EntryActivity extends AppCompatActivity
         try
         {
             SharedPreferences SP = getSharedPreferences(CommonData.SP,MODE_PRIVATE);
-            String Email = SP.getString("email",null);
+            String Username = SP.getString("username",null);
             String Token = SP.getString("token",null);
             HttpsURLConnection connection = (HttpsURLConnection) new URL(CommonData.CheckTokenAddress).openConnection();
             connection.setDoInput(true);
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             BufferedWriter Writer = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(),"UTF-8"));
-            Writer.write("token=" + Token + "&email=" + Email);
+            Writer.write("token=" + Token + "&username=" + Username);
             Writer.flush();
             if(connection.getResponseCode() == HttpURLConnection.HTTP_OK)
             {
@@ -179,18 +186,7 @@ public class EntryActivity extends AppCompatActivity
                             Toast.makeText(EntryActivity.this, "Please Login Again", Toast.LENGTH_LONG).show();
                         }
                     });
-                    SharedPreferences.Editor editor = getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit();
-                    editor.putString("email","...");
-                    editor.putString("password","...");
-                    editor.putString("name","...");
-                    editor.putString("token","...");
-                    editor.putBoolean("LoggedIn",false);
-                    editor.putString("username","...");
-                    editor.putBoolean("profile_completed",false);
-                    editor.apply();
-                    File Image = new File(getExternalCacheDir().getAbsolutePath() + "/ProPic.webp");
-                    if(Image.exists())
-                        Image.delete();
+                    CommonData.Logout(this);
                 }
             }
         }
@@ -422,12 +418,30 @@ public class EntryActivity extends AppCompatActivity
                                 SB.append(line);
                             reader.close();
 
-                            final String[] LoginResponse = SB.toString().split(":");
-                            if (EA.isRunning)
-                                StopAnimation();
+                            final String[] LoginResponse = SB.toString().split(";");
 
                             if (LoginResponse[0].equals("Correct"))
                             {
+
+                                JSONObject jsonObject = new JSONObject(LoginResponse[1]);
+                                SharedPreferences.Editor editor = getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit();
+
+                                editor.putBoolean("LoggedIn",true);
+                                editor.putString("username",jsonObject.getString("username"));
+                                editor.putString("name",jsonObject.getString("name"));
+                                editor.putString("email",jsonObject.getString("email"));
+                                editor.putString("password",jsonObject.getString("password"));
+                                editor.putString("token",jsonObject.getString("token"));
+                                editor.putBoolean("profile_completed",jsonObject.getInt("profile_completed")==1);
+                                editor.putString("current_job",jsonObject.getString("current_job"));
+                                editor.putString("area_of_expertise",jsonObject.getString("area_of_expertise"));
+                                editor.putString("course_time_frame",jsonObject.getString("course_time_frame"));
+                                editor.putString("university_roll_no",jsonObject.getString("university_roll_no"));
+                                editor.putString("passout_year", jsonObject.getString("passout_year"));
+                                editor.putString("department", jsonObject.getString("department"));
+
+                                editor.apply();
+
                                 runOnUiThread(new Runnable()
                                 {
                                     @Override
@@ -436,18 +450,8 @@ public class EntryActivity extends AppCompatActivity
                                         PasswordET.setText("");
                                         PasswordET.setEnabled(true);
                                         view.setEnabled(true);
-                                        SharedPreferences.Editor editor = getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit();
-                                        editor.putString("email",Email);
-                                        editor.putString("password",Password);
-                                        editor.putString("name",LoginResponse[1]);
-                                        editor.putBoolean("LoggedIn",true);
-                                        editor.putString("token",LoginResponse[2]);
-                                        editor.putString("username",LoginResponse[3]);
-                                        boolean ProfileCompleted = false;
-                                        if(LoginResponse[4].equals("1"))
-                                            ProfileCompleted = true;
-                                        editor.putBoolean("profile_completed",ProfileCompleted);
-                                        editor.apply();
+                                        if (EA.isRunning)
+                                            StopAnimation();
                                         startActivityForResult(new Intent(EntryActivity.this,ProfileActivity.class),ProfileRequestCode);
                                     }
                                 });
@@ -459,6 +463,8 @@ public class EntryActivity extends AppCompatActivity
                                     @Override
                                     public void run()
                                     {
+                                        if (EA.isRunning)
+                                            StopAnimation();
                                         view.setEnabled(true);
                                         PasswordET.setEnabled(true);
                                         PasswordET.requestFocus();
@@ -473,6 +479,8 @@ public class EntryActivity extends AppCompatActivity
                                 @Override
                                 public void run()
                                 {
+                                    if (EA.isRunning)
+                                        StopAnimation();
                                     Toast.makeText(EntryActivity.this, "Bad Internet Connection. Try again", Toast.LENGTH_LONG).show();
                                 }
                             });
@@ -484,7 +492,9 @@ public class EntryActivity extends AppCompatActivity
                             @Override
                             public void run()
                             {
-                                Toast.makeText(EntryActivity.this, "Bad Internet Connection. Try again", Toast.LENGTH_LONG).show();
+                                if (EA.isRunning)
+                                    StopAnimation();
+                                Toast.makeText(EntryActivity.this, "Bad Internet Connection. Try again\n" + ex.getMessage(), Toast.LENGTH_LONG).show();
                             }
                         });
                     }

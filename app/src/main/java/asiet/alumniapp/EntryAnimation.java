@@ -11,7 +11,7 @@ import android.view.View;
 
 public class EntryAnimation extends View
 {
-    private Paint White, Blue;
+    private Paint Light, Dark;
     private int i;
     private boolean Direction;
     public boolean isRunning = false;
@@ -30,15 +30,15 @@ public class EntryAnimation extends View
 
     private void Init()
     {
-        White = new Paint();
-        White.setColor(Color.WHITE);
-        White.setAntiAlias(true);
-        White.setStyle(Paint.Style.FILL);
+        Light = new Paint();
+        Light.setColor(Color.parseColor("#c7c7c7"));
+        Light.setAntiAlias(true);
+        Light.setStyle(Paint.Style.FILL);
 
-        Blue = new Paint();
-        Blue.setAntiAlias(true);
-        Blue.setColor(Color.parseColor("#FF269AE2"));
-        Blue.setStyle(Paint.Style.FILL);
+        Dark = new Paint();
+        Dark.setAntiAlias(true);
+        Dark.setColor(Color.parseColor("#8d8d8d"));
+        Dark.setStyle(Paint.Style.FILL);
 
         i = 0;
         Direction = true;
@@ -50,9 +50,9 @@ public class EntryAnimation extends View
         for(int j = 0; j < 4; j++)
         {
             if(j == i % 4)
-                canvas.drawCircle(getDP(10+j*20),getDP(20),getDP(7),White);
+                canvas.drawCircle(getDP(10+j*20),getDP(20),getDP(7),Light);
             else
-                canvas.drawCircle(getDP(10+j*20),getDP(20),getDP(7),Blue);
+                canvas.drawCircle(getDP(10+j*20),getDP(20),getDP(7),Dark);
         }
     }
 
