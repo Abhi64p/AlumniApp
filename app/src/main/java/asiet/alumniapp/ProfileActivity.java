@@ -2,33 +2,40 @@ package asiet.alumniapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 
 public class ProfileActivity extends AppCompatActivity
 {
     private ConstraintLayout LL;
-    private int ProfileActivityResultCode = 0;
+    private final int AccountActivityResultCode = 0;
+    private final int NotificationActivityrequestCode = 1;
+    private final int PhoneVerificationActivityRequestCode = 2;
     private EntryAnimation EA;
     private Thread AnimationThread;
     private TextView PollLoadingTV;
     private View[] viewArray;
-    public static String err = "";
+    static boolean ShowBadge = false;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener()
@@ -65,8 +72,11 @@ public class ProfileActivity extends AppCompatActivity
         LL = findViewById(R.id.ProfileLayout);
         HomePressed();
 
+        if(!getSharedPreferences(CommonData.SP,MODE_PRIVATE).getBoolean("phone_number_verified",false))
+            startActivityForResult(new Intent(this, PhoneVerificationActivity.class), PhoneVerificationActivityRequestCode);
+
         if(!getSharedPreferences(CommonData.SP,MODE_PRIVATE).getBoolean("profile_completed",false))
-           AddNotification("Profile Incomplete\nPlease complete your profile!");
+           AddNotification("Profile Incomplete\nPlease complete your profile!",NotificationActivity.NotificationId.ProfileComplete);
 
         if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
             LoadProfilePicture();
@@ -81,7 +91,7 @@ public class ProfileActivity extends AppCompatActivity
     private void PollPressed()
     {
         LL.removeAllViewsInLayout();
-        LL.addView(LayoutInflater.from(this).inflate(R.layout.profile_poll,LL,false));
+        LL.addView(LayoutInflater.from(this).inflate(R.layout.profile_poll, LL, false));
         final LinearLayout CL = findViewById(R.id.PollLayout);
         EA = findViewById(R.id.PollAnim);
         PollLoadingTV = findViewById(R.id.LoadingPollTV);
@@ -103,32 +113,58 @@ public class ProfileActivity extends AppCompatActivity
                         if(EA.isRunning)
                             StopAnimation();
                         if(viewArray == null)
-                            PollLoadingTV.setText("Bad Internet Connection! Try Again." + err);
+                            PollLoadingTV.setText("Bad Internet Connection! Try Again.");
                         else
                         {
                             CL.removeAllViews();
-                            View.OnClickListener onClickListener = new View.OnClickListener()
+                            View.OnClickListener responseClickListener = new View.OnClickListener()
                             {
                                 @Override
                                 public void onClick(View view)
                                 {
-                                    CustomButton customButton = (CustomButton)view;
-                                    final String PollId = customButton.getPollId();
-                                    final String Response = customButton.getText().toString();
-                                    customButton.getView().findViewById(R.id.PollButton1).setEnabled(false);
-                                    customButton.getView().findViewById(R.id.PollButton2).setEnabled(false);
-                                    customButton.getView().findViewById(R.id.PollButton3).setEnabled(false);
-                                    poll.UpdatePoll(Response,PollId);
-                                    view.setBackgroundColor(Color.parseColor("#FF8D8D8D"));
+                                    PollCardView pollCardView = (PollCardView)view.getParent().getParent();
+                                    pollCardView.setResponse(((Button)view).getText().toString());
+                                    ((TextView)pollCardView.findViewById(R.id.PollResponseTV)).setText("Your response is '" + pollCardView.getResponse() + "'");
+                                }
+                            };
+                            View.OnClickListener submitClickListener = new View.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(View view)
+                                {
+                                    PollCardView pollCardView = (PollCardView)view.getParent().getParent();
+                                    if(pollCardView.getResponse() != null)
+                                    {
+                                        poll.UpdatePoll(pollCardView.getResponse(), String.valueOf(pollCardView.getPollId()));
+                                        view.setEnabled(false);
+                                        view.setVisibility(View.GONE);
+                                        View parentView = (View)view.getParent();
+                                        Button b1, b2, b3;
+                                        b1 = parentView.findViewById(R.id.PollButton1);
+                                        b2 = parentView.findViewById(R.id.PollButton2);
+                                        b3 = parentView.findViewById(R.id.PollButton3);
+                                        b1.setVisibility(View.GONE);
+                                        b2.setVisibility(View.GONE);
+                                        b3.setVisibility(View.GONE);
+                                        b1.setEnabled(false);
+                                        b2.setEnabled(false);
+                                        b3.setEnabled(false);
+                                    }
+                                    else
+                                    {
+                                        ((TextView)pollCardView.findViewById(R.id.PollResponseTV)).setText("Please select a response!");
+                                    }
                                 }
                             };
                             for (View v : viewArray)
                             {
                                 CL.addView(v);
-                                v.findViewById(R.id.PollButton1).setOnClickListener(onClickListener);
-                                v.findViewById(R.id.PollButton2).setOnClickListener(onClickListener);
-                                v.findViewById(R.id.PollButton3).setOnClickListener(onClickListener);
+                                v.findViewById(R.id.PollButton1).setOnClickListener(responseClickListener);
+                                v.findViewById(R.id.PollButton2).setOnClickListener(responseClickListener);
+                                v.findViewById(R.id.PollButton3).setOnClickListener(responseClickListener);
+                                v.findViewById(R.id.PollSubmitButton).setOnClickListener(submitClickListener);
                             }
+
                         }
                     }
                 });
@@ -143,10 +179,14 @@ public class ProfileActivity extends AppCompatActivity
         LL.addView(LayoutInflater.from(this).inflate(R.layout.profile_jobs,LL,false));
     }
 
+    public void RefreshPollPressed(View view)
+    {
+        PollPressed();
+    }
 
     public void NotificationsPressed(View view)
     {
-        startActivity(new Intent(this,NotificationActivity.class));
+        startActivityForResult(new Intent(this,NotificationActivity.class),NotificationActivityrequestCode);
         findViewById(R.id.NotificationBadge).setVisibility(View.INVISIBLE);
     }
 
@@ -165,9 +205,9 @@ public class ProfileActivity extends AppCompatActivity
         startActivity(new Intent(this,WhatsnewActivity.class));
     }
 
-    private void AddNotification(String Message)
+    private void AddNotification(String Message, int Identifier)
     {
-        NotificationActivity.AddNotification(Message);
+        NotificationActivity.AddNotification(Message, Identifier);
         findViewById(R.id.NotificationBadge).setVisibility(View.VISIBLE);
     }
 
@@ -185,7 +225,7 @@ public class ProfileActivity extends AppCompatActivity
     public void ProfilePicturePressed(View view)
     {
         Intent AccountIntent = new Intent(this,AccountActivity.class);
-        startActivityForResult(AccountIntent,ProfileActivityResultCode);
+        startActivityForResult(AccountIntent,AccountActivityResultCode);
     }
 
     private void StartAnimation()
@@ -236,7 +276,7 @@ public class ProfileActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data)
     {
-        if(requestCode == ProfileActivityResultCode)
+        if(requestCode == AccountActivityResultCode)
         {
             if (resultCode == RESULT_OK)
             {
@@ -248,11 +288,46 @@ public class ProfileActivity extends AppCompatActivity
                     finish();
                 }
             }
-            else
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+                LoadProfilePicture();
+        }
+        else if(requestCode == NotificationActivityrequestCode)
+        {
+            ShowBadge = false;
+        }
+        else if(requestCode == PhoneVerificationActivityRequestCode)
+        {
+            if(resultCode != RESULT_OK)
             {
-                if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-                    LoadProfilePicture();
+                new AlertDialog.Builder(this)
+                        .setTitle("Verification Needed")
+                        .setMessage("Phone number must be verified to use our service!")
+                        .setPositiveButton("Verify Now", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                startActivityForResult(new Intent(ProfileActivity.this,PhoneVerificationActivity.class),PhoneVerificationActivityRequestCode);
+                            }
+                        })
+                        .setNegativeButton("Logout", new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i)
+                            {
+                                CommonData.Logout(ProfileActivity.this);
+                                Intent returnIntent = new Intent();
+                                returnIntent.putExtra("Status","Logout");
+                                setResult(Activity.RESULT_OK,returnIntent);
+                                finish();
+                            }
+                        })
+                        .setCancelable(false)
+                        .create().show();
             }
         }
+
+        if(ShowBadge)
+            findViewById(R.id.NotificationBadge).setVisibility(View.VISIBLE);
     }
 }

@@ -4,21 +4,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,13 +26,12 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class SignUpActivity extends AppCompatActivity
 {
-    private EditText SignUpPassword1ET, SignUpPassword2ET;
+    private EditText SignUpPassword1ET, SignUpPassword2ET, SignUpPhoneET;;
     private Thread AnimationThread;
     private EntryAnimation EA;
     private ScrollView SignUpScrollView;
-    private String Email, Name, Password1, Phone, DOB, DeptSelected = "";
+    private String Email, Name, Password1, Phone;
     private Button ContinueButton;
-    private EditText SignUpPhoneET;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -88,11 +81,13 @@ public class SignUpActivity extends AppCompatActivity
     {
         EditText SignUpNameET = findViewById(R.id.SignUpNameET);
         SignUpPhoneET = findViewById(R.id.signUpPhoneET);
+        EditText SignUpCountryCodeET = findViewById(R.id.SignUpCountryCodeET);
 
         Name = SignUpNameET.getText().toString();
         Phone = SignUpPhoneET.getText().toString();
         Password1 = SignUpPassword1ET.getText().toString();
         final String Password2 = SignUpPassword2ET.getText().toString();
+        final String CountryCode = SignUpCountryCodeET.getText().toString();
 
         if(Name.isEmpty())
         {
@@ -119,6 +114,11 @@ public class SignUpActivity extends AppCompatActivity
             SignUpPassword2ET.requestFocus();
             SignUpPassword2ET.setError("Passwords doesn't match!");
         }
+        else if(CountryCode.isEmpty())
+        {
+            SignUpCountryCodeET.requestFocus();
+            SignUpCountryCodeET.setError("Enter your country code here!");
+        }
         else if(Phone.isEmpty())
         {
             SignUpPhoneET.requestFocus();
@@ -126,7 +126,7 @@ public class SignUpActivity extends AppCompatActivity
         }
         else
         {
-            Phone = "+91" + Phone;
+            Phone = CountryCode + Phone;
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Email : " + Email + "\nPhone : " + Phone);
             builder.setTitle("Is this correct ?");
@@ -227,11 +227,12 @@ public class SignUpActivity extends AppCompatActivity
                                 final String ReturnData[] = stringBuilder.toString().split(":");
                                 getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit()
                                         .putBoolean("LoggedIn",true)
-                                        .putString("email",Email)
-                                        .putString("password",Password1)
-                                        .putString("name",Name)
-                                        .putString("token",ReturnData[0])
                                         .putString("username",ReturnData[1])
+                                        .putString("email",Email)
+                                        .putString("name",Name)
+                                        .putString("password",Password1)
+                                        .putString("phone_number",Phone)
+                                        .putString("token",ReturnData[0])
                                         .apply();
                                 Intent returnIntent = new Intent();
                                 returnIntent.putExtra("Status","Created");
@@ -245,7 +246,7 @@ public class SignUpActivity extends AppCompatActivity
                                     @Override
                                     public void run()
                                     {
-                                        Toast.makeText(SignUpActivity.this, "Bad Internet Connection. Try again 1", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(SignUpActivity.this, "Bad Internet Connection. Try again", Toast.LENGTH_LONG).show();
                                         if(EA.isRunning)
                                             StopAnimation();
                                         ContinueButton.setEnabled(true);
@@ -263,7 +264,7 @@ public class SignUpActivity extends AppCompatActivity
                             @Override
                             public void run()
                             {
-                                Toast.makeText(SignUpActivity.this, "Bad Internet Connection. Try again 2", Toast.LENGTH_LONG).show();
+                                Toast.makeText(SignUpActivity.this, "Bad Internet Connection. Try again", Toast.LENGTH_LONG).show();
                                 if(EA.isRunning)
                                     StopAnimation();
                                 ContinueButton.setEnabled(true);
@@ -279,7 +280,7 @@ public class SignUpActivity extends AppCompatActivity
                         @Override
                         public void run()
                         {
-                            Toast.makeText(SignUpActivity.this, "Bad Internet Connection. Try again, " + ex.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignUpActivity.this, "Bad Internet Connection. Try again", Toast.LENGTH_LONG).show();
                             if(EA.isRunning)
                                 StopAnimation();
                             ContinueButton.setEnabled(true);
@@ -302,35 +303,6 @@ public class SignUpActivity extends AppCompatActivity
     public static void setDate(String Date)
     {
         DOBTV.setText(Date);
-    }
-
-    public void DeptETClicked(View view)
-    {
-        final String[] depts = { "Applied Electronics & Instrumentation", "Civil Engineering", "Computer Science & Engineering", "Electrical & Electronics Engineering", "Electronics & Communication Engineering", "Information Technology", "Mechanical Engineering"};
-        final String[] deptsMapped = { "AIE","CE", "CSE", "EEE", "ECE", "IT", "ME"};
-
-        ArrayAdapter<String> adp = new ArrayAdapter<String>(this,R.layout.support_simple_spinner_dropdown_item,depts);
-
-        final Spinner spinner = new Spinner(this);
-        spinner.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.WRAP_CONTENT));
-        spinner.setAdapter(adp);
-        spinner.setPopupBackgroundResource(R.drawable.spinner_background);
-        spinner.getBackground().setColorFilter(Color.BLUE,PorterDuff.Mode.SRC_ATOP);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Department");
-        builder.setView(spinner);
-        builder.setPositiveButton("Continue", new DialogInterface.OnClickListener()
-        {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i)
-            {
-                int index = spinner.getSelectedItemPosition();
-                ((EditText)findViewById(R.id.DeptET)).setText(depts[index]);
-                DeptSelected = deptsMapped[index];
-            }
-        });
-        builder.create().show();
     }*/
 
     private void StartAnimation()

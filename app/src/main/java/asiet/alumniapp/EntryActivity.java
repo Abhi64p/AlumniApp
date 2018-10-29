@@ -11,7 +11,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -431,6 +430,8 @@ public class EntryActivity extends AppCompatActivity
                                 editor.putString("name",jsonObject.getString("name"));
                                 editor.putString("email",jsonObject.getString("email"));
                                 editor.putString("password",jsonObject.getString("password"));
+                                editor.putString("phone_number",jsonObject.getString("phone_number"));
+                                editor.putBoolean("phone_number_verified",jsonObject.getInt("phone_number_verified")==1);
                                 editor.putString("token",jsonObject.getString("token"));
                                 editor.putBoolean("profile_completed",jsonObject.getInt("profile_completed")==1);
                                 editor.putString("current_job",jsonObject.getString("current_job"));
@@ -548,6 +549,25 @@ public class EntryActivity extends AppCompatActivity
                 if (Status.equals("Logout"))
                 {
                     EmailET.setText("");
+                    Thread animThread = new Thread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            runOnUiThread(new Runnable()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    if(!EmailShowedAtStartup)
+                                        LoginSignUp();
+                                    else if(PasswordShowed)
+                                        ShowEmailBox();
+                                }
+                            });
+                        }
+                    });
+                    animThread.start();
                     if(!EmailShowedAtStartup)
                         LoginSignUp();
                     else if(PasswordShowed)

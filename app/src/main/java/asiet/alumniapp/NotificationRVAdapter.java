@@ -1,5 +1,8 @@
 package asiet.alumniapp;
 
+import android.content.Context;
+import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
@@ -13,27 +16,28 @@ import java.util.ArrayList;
 
 public class NotificationRVAdapter extends RecyclerView.Adapter<NotificationRVAdapter.MyViewHolder>
 {
-    private ArrayList<String> mDataset;
+    private ArrayList<CommonData.NotificationData> mDataset;
     private DisplayMetrics DM;
+    private Context context;
 
-    public static class MyViewHolder extends RecyclerView.ViewHolder
+    static class MyViewHolder extends RecyclerView.ViewHolder
     {
-        public View mView;
+        View mView;
 
-        public MyViewHolder(View v)
+        MyViewHolder(View v)
         {
             super(v);
             mView = v;
         }
     }
 
-    public NotificationRVAdapter(ArrayList<String> myDataset)
+    NotificationRVAdapter(ArrayList<CommonData.NotificationData> myDataset)
     {
         mDataset = myDataset;
     }
 
-    @Override
-    public NotificationRVAdapter.MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    @Override @NonNull
+    public NotificationRVAdapter.MyViewHolder onCreateViewHolder(@NonNull  ViewGroup parent, int viewType)
     {
         DM = parent.getResources().getDisplayMetrics();
 
@@ -42,15 +46,31 @@ public class NotificationRVAdapter extends RecyclerView.Adapter<NotificationRVAd
 
         View v =  LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_tv,parent,false);
 
-        MyViewHolder vh = new MyViewHolder(v);
-        return vh;
+        return new MyViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position)
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position)
     {
         TextView tv =  holder.mView.findViewById(R.id.NotificationContent);
-        tv.setText(mDataset.get(position));
+        CommonData.NotificationData Data = mDataset.get(position);
+        tv.setText(Data.NotificationText);
+        tv.setHint(Data.NotificationId);
+        tv.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+               int NotificationId = Integer.parseInt(((TextView)view).getHint().toString());
+                switch (NotificationId)
+                {
+                    case NotificationActivity.NotificationId.ProfileComplete :
+                    {
+                        context.startActivity(new Intent(context,EditAccountActivity.class));
+                    }
+                }
+            }
+        });
     }
 
     @Override
@@ -62,5 +82,10 @@ public class NotificationRVAdapter extends RecyclerView.Adapter<NotificationRVAd
     private int getDP(int pixel)
     {
         return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, pixel,DM);
+    }
+
+    public void setContext(Context context)
+    {
+        this.context = context;
     }
 }

@@ -1,7 +1,7 @@
 package asiet.alumniapp;
 
 import android.Manifest;
-import android.app.Activity;
+import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -11,7 +11,7 @@ import java.io.File;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class CommonData
+class CommonData
 {
     static final String SP = "asiet.alumniapp";
     static final String CheckMailAddress = "https://squareskipper.000webhostapp.com/CheckEmail.php";
@@ -25,10 +25,9 @@ public class CommonData
     static final String UpdateProfileAddress = "https://squareskipper.000webhostapp.com/UpdateProfile.php";
     static final String GetPollAddress = "https://squareskipper.000webhostapp.com/GetPoll.php";
     static final String SetPollAddress = "https://squareskipper.000webhostapp.com/SetPoll.php";
+    static final String PhoneVerifiedAddress = "https://squareskipper.000webhostapp.com/VerifiedPhone.php";
 
-
-
-    public static void Logout(Context context)
+    static void Logout(Context context)
     {
         SharedPreferences.Editor editor = context.getSharedPreferences(CommonData.SP, MODE_PRIVATE).edit();
         editor.putBoolean("LoggedIn", false);
@@ -36,6 +35,8 @@ public class CommonData
         editor.putString("name", "");
         editor.putString("email", "");
         editor.putString("password", "");
+        editor.putString("phone_number","");
+        editor.putBoolean("phone_number_verified",false);
         editor.putString("token", "");
         editor.putBoolean("profile_completed", false);
         editor.putString("current_job", "");
@@ -52,5 +53,17 @@ public class CommonData
                 Image.delete();
         }
         NotificationActivity.ClearList();
+    }
+
+    static class NotificationData
+    {
+        String NotificationId;
+        String NotificationText;
+
+        NotificationData(String id, String text)
+        {
+            NotificationId = id;
+            NotificationText = text;
+        }
     }
 }

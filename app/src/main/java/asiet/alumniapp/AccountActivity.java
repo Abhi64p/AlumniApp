@@ -16,10 +16,12 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -537,6 +539,8 @@ public class AccountActivity extends AppCompatActivity
         stringBuilder.append("\n\n");
 
         stringBuilder.append(SP.getString("email",""));
+        stringBuilder.append("\n");
+        stringBuilder.append(SP.getString("phone_number",""));
 
         DetailsTV.setText(stringBuilder.toString());
         stringBuilder.delete(0,stringBuilder.length());
@@ -578,6 +582,13 @@ public class AccountActivity extends AppCompatActivity
         }
 
         CourseDetailsTV.setText(stringBuilder.toString());
+    }
+
+    public void AboutButtonPressed(View view)
+    {
+        new AlertDialog.Builder(this)
+                .setView(LayoutInflater.from(this).inflate(R.layout.about_layout,null,false))
+                .create().show();
     }
 
     @Override
@@ -642,7 +653,7 @@ public class AccountActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,@NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode == ProfilePhotoAutoLoadPermissionRequestCode)

@@ -1,9 +1,9 @@
 package asiet.alumniapp;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -73,11 +73,11 @@ public class Poll
         {
             JSONArray jsonArray = new JSONArray(jsonResponse);
             int ResponseSize = jsonArray.length();
-            String[] PollIdArray = new String[ResponseSize];
+            int[] PollIdArray = new int[ResponseSize];
             String[] ResponseArray = new String[ResponseSize];
             for(int i=0; i<ResponseSize; i++)
             {
-                PollIdArray[i] = jsonArray.getJSONObject(i).getString("poll_id");
+                PollIdArray[i] = jsonArray.getJSONObject(i).getInt("poll_id");
                 ResponseArray[i] = jsonArray.getJSONObject(i).getString("response");
             }
 
@@ -86,13 +86,13 @@ public class Poll
             int PollSize = jsonArray.length();
             for(int i=0; i<PollSize; i++)
             {
-                View cardView = LayoutInflater.from(context).inflate(R.layout.poll_layout,null,false);
+                View view = LayoutInflater.from(context).inflate(R.layout.poll_layout,null,false);
 
                 boolean Flag = false;
-                String tmpPollId = jsonArray.getJSONObject(i).getString("poll_id");
-                int j=0;
+                int tmpPollId = jsonArray.getJSONObject(i).getInt("poll_id");
+                int j;
                 for(j=0; j<ResponseSize; j++)
-                    if(PollIdArray[j].equals(tmpPollId))
+                    if(PollIdArray[j] == tmpPollId)
                     {
                         Flag = true;
                         break;
@@ -100,22 +100,22 @@ public class Poll
 
                  if(!Flag)
                  {
-                     ((TextView)cardView.findViewById(R.id.PollMessageTV)).setText(jsonArray.getJSONObject(i).getString("text"));
-                     ((CustomButton) cardView.findViewById(R.id.PollButton1)).setText(jsonArray.getJSONObject(i).getString("button1"));
-                     ((CustomButton) cardView.findViewById(R.id.PollButton2)).setText(jsonArray.getJSONObject(i).getString("button2"));
-                     ((CustomButton) cardView.findViewById(R.id.PollButton3)).setText(jsonArray.getJSONObject(i).getString("button3"));
-                     ((CustomButton) cardView.findViewById(R.id.PollButton1)).setPollId(jsonArray.getJSONObject(i).getString("poll_id"));
-                     ((CustomButton) cardView.findViewById(R.id.PollButton2)).setPollId(jsonArray.getJSONObject(i).getString("poll_id"));
-                     ((CustomButton) cardView.findViewById(R.id.PollButton3)).setPollId(jsonArray.getJSONObject(i).getString("poll_id"));
-                     ((CustomButton) cardView.findViewById(R.id.PollButton1)).setView(cardView);
-                     ((CustomButton) cardView.findViewById(R.id.PollButton2)).setView(cardView);
-                     ((CustomButton) cardView.findViewById(R.id.PollButton3)).setView(cardView);
+                     ((TextView)view.findViewById(R.id.PollMessageTV)).setText(jsonArray.getJSONObject(i).getString("text"));
+                     ((Button)view.findViewById(R.id.PollButton1)).setText(jsonArray.getJSONObject(i).getString("button1"));
+                     ((Button)view.findViewById(R.id.PollButton2)).setText(jsonArray.getJSONObject(i).getString("button2"));
+                     ((Button)view.findViewById(R.id.PollButton3)).setText(jsonArray.getJSONObject(i).getString("button3"));
+                     ((PollCardView)view.findViewById(R.id.pollcardview)).setPollId(jsonArray.getJSONObject(i).getInt("poll_id"));
                  }
                  else
                  {
-                     ((TextView)cardView.findViewById(R.id.PollMessageTV)).setText(jsonArray.getJSONObject(i).getString("text") + "\n\nYour response was '"+ ResponseArray[j]+"'");
+                     ((TextView) view.findViewById(R.id.PollMessageTV)).setText(jsonArray.getJSONObject(i).getString("text"));
+                     ((TextView) view.findViewById(R.id.PollResponseTV)).setText("Your response was '" + ResponseArray[j] + "'");
+                     view.findViewById(R.id.PollButton1).setVisibility(View.GONE);
+                     view.findViewById(R.id.PollButton2).setVisibility(View.GONE);
+                     view.findViewById(R.id.PollButton3).setVisibility(View.GONE);
+                     view.findViewById(R.id.PollSubmitButton).setVisibility(View.GONE);
                  }
-                viewArray[i] = cardView;
+                viewArray[i] = view;
             }
             return viewArray;
         }

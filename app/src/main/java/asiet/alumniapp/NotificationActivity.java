@@ -7,14 +7,17 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
 public class NotificationActivity extends AppCompatActivity
 {
-    private static ArrayList<String> NotificationList;
-    private RecyclerView.Adapter adapter = null;
+    private static ArrayList<CommonData.NotificationData> NotificationList;
+    private static RecyclerView.Adapter adapter = null;
+    static class NotificationId
+    {
+        static final int ProfileComplete = 0;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -26,6 +29,7 @@ public class NotificationActivity extends AppCompatActivity
             NotificationList = new ArrayList<>();
         RecyclerView RV = findViewById(R.id.NotificationRV);
         adapter = new NotificationRVAdapter(NotificationList);
+        ((NotificationRVAdapter) adapter).setContext(this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         RV.setLayoutManager(layoutManager);
         RV.setAdapter(adapter);
@@ -63,18 +67,42 @@ public class NotificationActivity extends AppCompatActivity
             }
         };
         new ItemTouchHelper(simpleCallback).attachToRecyclerView(RV);
+
     }
 
-    public static void AddNotification(String Text)
+    static void AddNotification(String Text, int NotificationId)
     {
-        if(NotificationList == null)
+        if (NotificationList == null)
             NotificationList = new ArrayList<>();
-        NotificationList.add(0,Text);
+        boolean Found = false;
+        ProfileActivity.ShowBadge = true;
+        for (int i = 0; i < NotificationList.size(); i++)
+        {
+            if (NotificationId == Integer.parseInt(NotificationList.get(i).NotificationId))
+                Found = true;
+        }
+        if (!Found)
+            NotificationList.add(0, new CommonData.NotificationData(String.valueOf(NotificationId), Text));
+        ProfileActivity.ShowBadge = true;
     }
 
     public static void ClearList()
     {
         if(NotificationList != null)
             NotificationList.clear();
+    }
+
+    static void RemoveNotification(int NotificationId)
+    {
+        if (NotificationList != null)
+            for (int i = 0; i < NotificationList.size(); i++)
+            {
+                if (NotificationId == Integer.parseInt(NotificationList.get(i).NotificationId))
+                {
+                    NotificationList.remove(i);
+                    if (adapter != null)
+                        adapter.notifyItemRemoved(i);
+                }
+            }
     }
 }
