@@ -7,7 +7,18 @@ import android.util.AttributeSet;
 public class PollCardView extends CardView
 {
     private int PollId;
-    private String Response = null;
+    private String Response = "";
+    private String OtherText = null;
+
+    public String getOtherText()
+    {
+        return OtherText;
+    }
+
+    public void setOtherText(String otherText)
+    {
+        OtherText = otherText;
+    }
 
     public PollCardView(Context context)
     {

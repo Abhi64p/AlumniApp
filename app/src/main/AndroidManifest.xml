@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -15,13 +15,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/ModifiedTheme">
-        <meta-data android:name="sendotp.key" android:value="245144AT9mReCq5bd6e063" />
+        <meta-data
+            android:name="sendotp.key"
+            android:value="245144AT9mReCq5bd6e063" />
+
         <activity
             android:name=".EntryActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -60,9 +64,10 @@
         <activity
             android:name=".WhatsnewActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".PhoneVerificationActivity">
-
-        </activity>
+        <activity
+            android:name=".PhoneVerificationActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".TermsOfUseActivity"></activity>
     </application>
 
 </manifest>

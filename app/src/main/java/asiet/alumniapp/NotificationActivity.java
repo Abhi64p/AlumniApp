@@ -104,5 +104,7 @@ public class NotificationActivity extends AppCompatActivity
                         adapter.notifyItemRemoved(i);
                 }
             }
+        if(NotificationList.size() ==0)
+            ProfileActivity.ShowBadge = false;
     }
 }

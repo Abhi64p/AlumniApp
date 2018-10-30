@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -96,9 +97,9 @@ public class ProfileActivity extends AppCompatActivity
         EA = findViewById(R.id.PollAnim);
         PollLoadingTV = findViewById(R.id.LoadingPollTV);
 
-        if(!EA.isRunning)
+        if (!EA.isRunning)
             StartAnimation();
-        final Poll poll = new Poll(getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("username","..."),this);
+        final Poll poll = new Poll(getSharedPreferences(CommonData.SP, MODE_PRIVATE).getString("username", "..."), this);
         Thread BGThread = new Thread(new Runnable()
         {
             @Override
@@ -110,9 +111,9 @@ public class ProfileActivity extends AppCompatActivity
                     @Override
                     public void run()
                     {
-                        if(EA.isRunning)
+                        if (EA.isRunning)
                             StopAnimation();
-                        if(viewArray == null)
+                        if (viewArray == null)
                             PollLoadingTV.setText("Bad Internet Connection! Try Again.");
                         else
                         {
@@ -122,9 +123,11 @@ public class ProfileActivity extends AppCompatActivity
                                 @Override
                                 public void onClick(View view)
                                 {
-                                    PollCardView pollCardView = (PollCardView)view.getParent().getParent();
-                                    pollCardView.setResponse(((Button)view).getText().toString());
-                                    ((TextView)pollCardView.findViewById(R.id.PollResponseTV)).setText("Your response is '" + pollCardView.getResponse() + "'");
+                                    PollCardView pollCardView = (PollCardView) view.getParent().getParent();
+                                    pollCardView.setResponse(((Button) view).getText().toString());
+                                    TextView responseTV = pollCardView.findViewById(R.id.PollResponseTV);
+                                    responseTV.setText("Your response is '" + pollCardView.getResponse() + "'");
+                                    responseTV.setVisibility(View.VISIBLE);
                                 }
                             };
                             View.OnClickListener submitClickListener = new View.OnClickListener()
@@ -132,28 +135,57 @@ public class ProfileActivity extends AppCompatActivity
                                 @Override
                                 public void onClick(View view)
                                 {
-                                    PollCardView pollCardView = (PollCardView)view.getParent().getParent();
-                                    if(pollCardView.getResponse() != null)
+                                    PollCardView pollCardView = (PollCardView) view.getParent().getParent();
+                                    if (!pollCardView.getResponse().isEmpty())
                                     {
                                         poll.UpdatePoll(pollCardView.getResponse(), String.valueOf(pollCardView.getPollId()));
                                         view.setEnabled(false);
                                         view.setVisibility(View.GONE);
-                                        View parentView = (View)view.getParent();
-                                        Button b1, b2, b3;
+                                        View parentView = (View) view.getParent();
+                                        Button b1, b2, b3, b4;
                                         b1 = parentView.findViewById(R.id.PollButton1);
                                         b2 = parentView.findViewById(R.id.PollButton2);
                                         b3 = parentView.findViewById(R.id.PollButton3);
+                                        b4 = parentView.findViewById(R.id.PollButton4);
                                         b1.setVisibility(View.GONE);
                                         b2.setVisibility(View.GONE);
                                         b3.setVisibility(View.GONE);
+                                        b4.setVisibility(View.GONE);
                                         b1.setEnabled(false);
                                         b2.setEnabled(false);
                                         b3.setEnabled(false);
-                                    }
-                                    else
+                                        b4.setEnabled(false);
+                                    } else
                                     {
-                                        ((TextView)pollCardView.findViewById(R.id.PollResponseTV)).setText("Please select a response!");
+                                        TextView responseTV = pollCardView.findViewById(R.id.PollResponseTV);
+                                        responseTV.setText("Please select a response!");
+                                        responseTV.setVisibility(View.VISIBLE);
                                     }
+                                }
+                            };
+                            View.OnClickListener otherClickListener = new View.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(View view)
+                                {
+                                    final PollCardView pollCardView = (PollCardView) view.getParent().getParent();
+                                    final EditText ET = new EditText(ProfileActivity.this);
+                                    ET.setText(pollCardView.getResponse());
+                                    new AlertDialog.Builder(ProfileActivity.this)
+                                            .setTitle(pollCardView.getOtherText())
+                                            .setView(ET)
+                                            .setPositiveButton("Continue", new DialogInterface.OnClickListener()
+                                            {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i)
+                                                {
+                                                    pollCardView.setResponse(ET.getText().toString());
+                                                    TextView responseTV = pollCardView.findViewById(R.id.PollResponseTV);
+                                                    responseTV.setText("Your response is '" + pollCardView.getResponse() + "'");
+                                                    responseTV.setVisibility(View.VISIBLE);
+                                                }
+                                            })
+                                            .create().show();
                                 }
                             };
                             for (View v : viewArray)
@@ -162,6 +194,7 @@ public class ProfileActivity extends AppCompatActivity
                                 v.findViewById(R.id.PollButton1).setOnClickListener(responseClickListener);
                                 v.findViewById(R.id.PollButton2).setOnClickListener(responseClickListener);
                                 v.findViewById(R.id.PollButton3).setOnClickListener(responseClickListener);
+                                v.findViewById(R.id.PollButton4).setOnClickListener(otherClickListener);
                                 v.findViewById(R.id.PollSubmitButton).setOnClickListener(submitClickListener);
                             }
 
@@ -329,5 +362,7 @@ public class ProfileActivity extends AppCompatActivity
 
         if(ShowBadge)
             findViewById(R.id.NotificationBadge).setVisibility(View.VISIBLE);
+        else
+            findViewById(R.id.NotificationBadge).setVisibility(View.INVISIBLE);
     }
 }

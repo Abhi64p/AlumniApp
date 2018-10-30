@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -38,6 +39,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URL;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -586,9 +588,52 @@ public class AccountActivity extends AppCompatActivity
 
     public void AboutButtonPressed(View view)
     {
+        View aboutView = LayoutInflater.from(this).inflate(R.layout.about_layout,null,false);
+        aboutView.findViewById(R.id.LinkedInAbhi).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                LoadLinkedIn("Abhi64p");
+            }
+        });
+        aboutView.findViewById(R.id.LinkedInSibin).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                LoadLinkedIn("sibin-joseph");
+            }
+        });
+        aboutView.findViewById(R.id.LinkedInShyam).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                LoadLinkedIn("shyam-unnikrishnan");
+            }
+        });
+        aboutView.findViewById(R.id.TermsOfUseTV).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                startActivity(new Intent(AccountActivity.this,TermsOfUseActivity.class));
+            }
+        });
         new AlertDialog.Builder(this)
-                .setView(LayoutInflater.from(this).inflate(R.layout.about_layout,null,false))
+                .setView(aboutView)
                 .create().show();
+    }
+
+    private void LoadLinkedIn(String Profile)
+    {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("linkedin://profile/in/"+Profile));
+        final List<ResolveInfo> list = this.getPackageManager().queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY);
+        if (list.isEmpty()) {
+            intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.linkedin.com/in/" + Profile));
+        }
+        startActivity(intent);
     }
 
     @Override
