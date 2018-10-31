@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <asiet.alumniapp.PollCardView
+    <in.ac.adishankara.alumni.asietalumni.PollCardView
         android:id="@+id/pollcardview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -114,5 +114,5 @@
                 app:layout_constraintTop_toBottomOf="@+id/PollResponseTV" />
 
         </android.support.constraint.ConstraintLayout>
-    </asiet.alumniapp.PollCardView>
+    </in.ac.adishankara.alumni.asietalumni.PollCardView>
 </android.support.constraint.ConstraintLayout>

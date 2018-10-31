@@ -36,7 +36,7 @@
                 android:text="Loading Polls"
                 android:textSize="18sp" />
 
-            <asiet.alumniapp.EntryAnimation
+            <in.ac.adishankara.alumni.asietalumni.EntryAnimation
                 android:id="@+id/PollAnim"
                 android:layout_width="80dp"
                 android:layout_height="40dp"

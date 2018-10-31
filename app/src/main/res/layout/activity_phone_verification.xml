@@ -37,7 +37,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/PhoneVerificationET" />
 
-    <asiet.alumniapp.EntryAnimation
+    <in.ac.adishankara.alumni.asietalumni.EntryAnimation
         android:id="@+id/PhoneVerificationEA"
         android:layout_width="80dp"
         android:layout_height="40dp"
