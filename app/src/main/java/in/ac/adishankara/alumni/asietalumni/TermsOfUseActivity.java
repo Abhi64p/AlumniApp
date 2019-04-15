@@ -1,8 +1,9 @@
 package in.ac.adishankara.alumni.asietalumni;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.webkit.WebView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class TermsOfUseActivity extends AppCompatActivity
 {

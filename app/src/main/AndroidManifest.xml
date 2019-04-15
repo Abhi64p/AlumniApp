@@ -37,7 +37,7 @@
             android:screenOrientation="portrait" />
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="asiet.alumniapp.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -67,7 +67,8 @@
         <activity
             android:name=".PhoneVerificationActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".TermsOfUseActivity"></activity>
+        <activity android:name=".TermsOfUseActivity" />
+        <activity android:name=".PasswordResetActivity"></activity>
     </application>
 
 </manifest>

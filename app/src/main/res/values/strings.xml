@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">ASIET Alumni</string>
-    <string name="app_version">Version : 1.0.0</string>
+    <string name="app_version">Version : 1.2</string>
     <string name="title_activity_sign_up">Sign Up</string>
     <string name="title_activity_profile1">Profile1Activity</string>
     <string name="title_home">Home</string>
@@ -12,4 +12,5 @@
     <string name="AboutTextP3">Anoop Ismail (President president.alumni@adishankara.ac.in )\n\nVipin Gopi (Vice President vicepresident.alumni@adishankara.ac.in )\n\nGripsy Paul (Treasurer   treasurer.alumni@adishankara.ac.in )\n\nKrishnaprasad V (Secretary secretary.alumni@adishankara.ac.in)\n\nPR account- info.alumni@adishankara.ac.in</string>
     <string name="AboutTextP4">Fathima Zahina\nAnish TU\nPratheek Mammen John\nArun Karuvat\nMathew Joshy\nVinod Joy</string>
     <string name="AboutTextP5">We have list of volunteers running our regional chapters whom you can contact. We have WhatsApp groups (soon will be replaced by this application) for all these chapters. Please be in touch with regional POCs or mail to info.alumni@adishankara.ac.in\n\nAnna (Student Chapter POC)\n\nSrikanth Sarma (Student Chapter POC)\n\nAjith Chandran (USA Chapter POC)\n\nJithesh Ramdas (USA Chapter POC)\n\nFathima Shameem (UAE Chapter POC)\n\nHari (UAE Chapter POC)\n\nFathima Zahina (Trivandrum Chapter POC)\n\nArun Karuvat (Trivandrum Chapter POC)\n\nNandu (Chennai Chapter POC)\n\nVipin Appan (Kochi chapter POC)\n\nPratheek Mammen John (Kochi chapter POC)\n\nAnoop Ismail (Bangalore chapter POC)\n\nKrishnaprasad (Bangalore chapter POC)</string>
+    <string name="WhatsNew">v1.2:\n1. Checks for new notifications and polls in background.\n2. App can be shared with in-app share button.\n\nv1.1:\n1. Added password reset option.\n2. Phone number can be changed before verification.</string>
 </resources>

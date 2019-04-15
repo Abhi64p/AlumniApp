@@ -1,15 +1,22 @@
 package in.ac.adishankara.alumni.asietalumni;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import org.json.JSONObject;
 
@@ -19,6 +26,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -26,14 +34,13 @@ public class EntryActivity extends AppCompatActivity
 {
     private EntryAnimation EA;
     private Thread AnimationThread;
-    private EditText EmailET;
+    private EditText EmailET, PasswordET;
     private static final int SignUpRequestCode = 1;
     private static final int ProfileRequestCode = 2;
     private boolean PasswordShowed = false;
     private boolean EmailShowedAtStartup = false;
-    private Button ContinueButton;
-    private Button LoginButton;
-    private EditText PasswordET;
+    private Button ContinueButton,LoginButton;
+    private TextView ForgotPasswordTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -45,6 +52,7 @@ public class EntryActivity extends AppCompatActivity
         ContinueButton = findViewById(R.id.ContinueButton);
         LoginButton = findViewById(R.id.LoginButton);
         PasswordET = findViewById(R.id.PasswordET);
+        ForgotPasswordTV = findViewById(R.id.ForgotPasswordTV);
 
         Thread IntroAimThread = new Thread(new Runnable()
         {
@@ -315,6 +323,7 @@ public class EntryActivity extends AppCompatActivity
         ViewHorizTranslationAnimation ContinueAnim = new ViewHorizTranslationAnimation(ContinueButton);
         ViewHorizTranslationAnimation PasswordAnim = new ViewHorizTranslationAnimation(PasswordET);
         ViewHorizTranslationAnimation LoginAnim = new ViewHorizTranslationAnimation(LoginButton);
+        ViewAlphaAnimation ForgotPasswordAnim = new ViewAlphaAnimation(ForgotPasswordTV);
 
         LoginButton.setEnabled(true);
         LoginButton.setVisibility(View.VISIBLE);
@@ -325,6 +334,7 @@ public class EntryActivity extends AppCompatActivity
         EmailET.setEnabled(false);
         EmailET.setVisibility(View.GONE);
         PasswordET.setWidth(EmailET.getWidth());
+        ForgotPasswordTV.setEnabled(true);
 
         float ActualEtX = EmailET.getX();
         float ActualButX = ContinueButton.getX();
@@ -335,11 +345,14 @@ public class EntryActivity extends AppCompatActivity
         PasswordET.setX(2*ActualEtX);
         LoginAnim.setNewValue(ActualButX);
         LoginButton.setX(2*ActualButX);
+        ForgotPasswordAnim.setNewValue(1);
+        ForgotPasswordAnim.setDuration(500);
 
         EmailET.startAnimation(EmailAnim);
         ContinueButton.startAnimation(ContinueAnim);
         PasswordET.startAnimation(PasswordAnim);
         LoginButton.startAnimation(LoginAnim);
+        ForgotPasswordTV.startAnimation(ForgotPasswordAnim);
 
         PasswordET.requestFocus();
     }
@@ -352,6 +365,7 @@ public class EntryActivity extends AppCompatActivity
         ViewHorizTranslationAnimation ContinueAnim = new ViewHorizTranslationAnimation(ContinueButton);
         ViewHorizTranslationAnimation PasswordAnim = new ViewHorizTranslationAnimation(PasswordET);
         ViewHorizTranslationAnimation LoginAnim = new ViewHorizTranslationAnimation(LoginButton);
+        ViewAlphaAnimation ForgotPasswordAnim = new ViewAlphaAnimation(ForgotPasswordTV);
 
         ContinueButton.setEnabled(true);
         ContinueButton.setVisibility(View.VISIBLE);
@@ -361,6 +375,7 @@ public class EntryActivity extends AppCompatActivity
         PasswordET.setVisibility(View.GONE);
         EmailET.setEnabled(true);
         EmailET.setVisibility(View.VISIBLE);
+        ForgotPasswordTV.setEnabled(false);
 
         float ActualEtX = PasswordET.getX();
         float ActualButX = LoginButton.getX();
@@ -369,16 +384,18 @@ public class EntryActivity extends AppCompatActivity
         ContinueAnim.setNewValue(ActualButX);
         PasswordAnim.setNewValue(2*ActualEtX);
         LoginAnim.setNewValue(2*ActualButX);
+        ForgotPasswordAnim.setNewValue(0);
+        ForgotPasswordAnim.setDuration(500);
 
         EmailET.startAnimation(EmailAnim);
         ContinueButton.startAnimation(ContinueAnim);
         PasswordET.startAnimation(PasswordAnim);
         LoginButton.startAnimation(LoginAnim);
+        ForgotPasswordTV.startAnimation(ForgotPasswordAnim);
     }
 
     public void LoginButtonPressed(final View view)
     {
-
         final EditText PasswordET = findViewById(R.id.PasswordET);
         final String Password = PasswordET.getText().toString();
         final String Email = EmailET.getText().toString();
@@ -423,7 +440,7 @@ public class EntryActivity extends AppCompatActivity
                             {
 
                                 JSONObject jsonObject = new JSONObject(LoginResponse[1]);
-                                SharedPreferences.Editor editor = getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit();
+                                final SharedPreferences.Editor editor = getSharedPreferences(CommonData.SP,MODE_PRIVATE).edit();
 
                                 editor.putBoolean("LoggedIn",true);
                                 editor.putString("username",jsonObject.getString("username"));
@@ -519,6 +536,33 @@ public class EntryActivity extends AppCompatActivity
             }
         });
         TokenCheckThread.start();
+    }
+
+    public void ForgotPasswordPressed(View view)
+    {
+        final String email = EmailET.getText().toString();
+        new AlertDialog.Builder(this)
+                .setTitle("Confirm Password Reset")
+                .setMessage("You are going to reset password for the account associated with " + email)
+                .setPositiveButton("Continue", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+                        Intent intent = new Intent(EntryActivity.this,PasswordResetActivity.class);
+                        intent.putExtra("email",email);
+                        startActivity(intent);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i)
+                    {
+
+                    }
+                })
+                .create().show();
     }
 
     @Override

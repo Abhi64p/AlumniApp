@@ -4,18 +4,16 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.constraint.ConstraintLayout;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.view.GestureDetector;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,7 +22,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.io.File;
+import java.util.concurrent.TimeUnit;
+
 
 public class ProfileActivity extends AppCompatActivity
 {
@@ -73,14 +81,55 @@ public class ProfileActivity extends AppCompatActivity
         LL = findViewById(R.id.ProfileLayout);
         HomePressed();
 
-        if(!getSharedPreferences(CommonData.SP,MODE_PRIVATE).getBoolean("phone_number_verified",false))
+        if (!getSharedPreferences(CommonData.SP, MODE_PRIVATE).getBoolean("phone_number_verified", false))
             startActivityForResult(new Intent(this, PhoneVerificationActivity.class), PhoneVerificationActivityRequestCode);
 
-        if(!getSharedPreferences(CommonData.SP,MODE_PRIVATE).getBoolean("profile_completed",false))
-           AddNotification("Profile Incomplete\nPlease complete your profile!",NotificationActivity.NotificationId.ProfileComplete);
+        if (!getSharedPreferences(CommonData.SP, MODE_PRIVATE).getBoolean("profile_completed", false))
+            AddNotification("Profile Incomplete\nPlease complete your profile!", NotificationActivity.NotificationId.ProfileComplete);
 
-        if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+        if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
             LoadProfilePicture();
+
+        String Action = getIntent().getAction();
+        if (Action != null)
+            if (!Action.isEmpty())
+                if (Action.equals("ShowPolls"))
+                {
+                    PollPressed();
+                    navigation.setSelectedItemId(R.id.navigation_poll);
+                }
+
+        SharedPreferences SP = getSharedPreferences(CommonData.SP, MODE_PRIVATE);
+        SharedPreferences.Editor editor = SP.edit();
+        if (!SP.getBoolean("BackgroundFetchStarted", false))
+        {
+            editor.putBoolean("BackgroundFetchStarted",true);
+            Constraints constraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build();
+
+            PeriodicWorkRequest saveRequest = new PeriodicWorkRequest.Builder(BackgroundFetch.class, 15, TimeUnit.MINUTES, 5, TimeUnit.MINUTES)
+                    .setConstraints(constraints)
+                    .build();
+
+            editor.putString("UUID", saveRequest.getId().toString());
+            editor.apply();
+            WorkManager.getInstance().enqueue(saveRequest);
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Autostart Issue")
+                    .setMessage("Please allow AutoStart permission manually if your phone has a security app for receiving notifications and polls in background.")
+                    .setPositiveButton("Okay", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i)
+                        {
+
+                        }
+                    })
+                    .create()
+                    .show();
+        }
     }
 
     private void HomePressed()
@@ -225,7 +274,19 @@ public class ProfileActivity extends AppCompatActivity
 
     public void ShareButtonPressed(View view)
     {
-        startActivity(new Intent(this,ShareActivity.class));
+        try
+        {
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "ASIET Alumni");
+            String shareMessage = "ASIET official app to connect college and alumni\n\n";
+            shareMessage = shareMessage + "https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID + "\n\n";
+            shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
+            startActivity(Intent.createChooser(shareIntent, "choose one"));
+        } catch (Exception e)
+        {
+            Toast.makeText(this, "Can't share now! try again.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void FeedbackPressed(View view)

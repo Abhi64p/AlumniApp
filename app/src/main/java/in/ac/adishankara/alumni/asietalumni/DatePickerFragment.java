@@ -3,8 +3,10 @@ package in.ac.adishankara.alumni.asietalumni;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.widget.DatePicker;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 
 import java.util.Calendar;
 
@@ -12,10 +14,10 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
 {
     private String Date = "";
 
-    @Override
+    @Override @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        int year = 0, month = 0, day = 0;
+        int year , month, day;
         if(Date.isEmpty())
         {
             Calendar c = Calendar.getInstance();

@@ -1,4 +1,4 @@
-package in.ac.adishankara.alumni.asietalumnip;
+package in.ac.adishankara.alumni.asietalumni;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -9,11 +9,11 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
-public class UriPathResolver
+class UriPathResolver
 {
     private ContentResolver contentResolver;
 
-    public UriPathResolver(ContentResolver contentResolver)
+    UriPathResolver(ContentResolver contentResolver)
     {
         this.contentResolver = contentResolver;
     }
@@ -23,7 +23,7 @@ public class UriPathResolver
         return  contentResolver;
     }
 
-    public String GetRealPath(Context ctx, Uri uri)
+    String GetRealPath(Context ctx, Uri uri)
     {
         String ret = "";
         if (ctx != null && uri != null)
@@ -44,15 +44,13 @@ public class UriPathResolver
                 String uriAuthority = uri.getAuthority();
                 if (isMediaDoc(uriAuthority))
                 {
-                    String idArr[] = documentId.split(":");
+                    String[] idArr = documentId.split(":");
                     if (idArr.length == 2)
                     {
                         String docType = idArr[0];
                         String realDocId = idArr[1];
                         Uri mediaContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                        if ("image".equals(docType))
-                            mediaContentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                        else if ("video".equals(docType))
+                        if ("video".equals(docType))
                             mediaContentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
                         else if ("audio".equals(docType))
                             mediaContentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
@@ -67,7 +65,7 @@ public class UriPathResolver
 
                 } else if (isExternalStoreDoc(uriAuthority))
                 {
-                    String idArr[] = documentId.split(":");
+                    String[] idArr = documentId.split(":");
                     if (idArr.length == 2)
                     {
                         String type = idArr[0];
@@ -102,6 +100,8 @@ public class UriPathResolver
                 ret = cursor.getString(imageColumnIndex);
             }
         }
+        if(cursor!= null)
+            cursor.close();
         return ret;
     }
 

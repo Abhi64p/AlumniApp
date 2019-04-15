@@ -1,12 +1,13 @@
 package in.ac.adishankara.alumni.asietalumni;
 
-import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
@@ -95,6 +96,7 @@ public class NotificationActivity extends AppCompatActivity
     static void RemoveNotification(int NotificationId)
     {
         if (NotificationList != null)
+        {
             for (int i = 0; i < NotificationList.size(); i++)
             {
                 if (NotificationId == Integer.parseInt(NotificationList.get(i).NotificationId))
@@ -104,7 +106,8 @@ public class NotificationActivity extends AppCompatActivity
                         adapter.notifyItemRemoved(i);
                 }
             }
-        if(NotificationList.size() ==0)
-            ProfileActivity.ShowBadge = false;
+            if (NotificationList.size() == 0)
+                ProfileActivity.ShowBadge = false;
+        }
     }
 }

@@ -1,17 +1,24 @@
 package in.ac.adishankara.alumni.asietalumni;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.msg91.sendotp.library.SendOtpVerification;
 import com.msg91.sendotp.library.Verification;
 import com.msg91.sendotp.library.VerificationListener;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -62,6 +69,7 @@ public class PhoneVerificationActivity extends AppCompatActivity implements Veri
 
     public void ResendPressed(View view)
     {
+        Toast.makeText(this, "Verification code resended!", Toast.LENGTH_SHORT).show();
         verification.resend("text");
     }
 
@@ -209,5 +217,148 @@ public class PhoneVerificationActivity extends AppCompatActivity implements Veri
             }
         });
         AnimationThread.interrupt();
+    }
+
+    public void ChangeNumberPressed(View view)
+    {
+
+        View ABView = LayoutInflater.from(this).inflate(R.layout.change_phone_layout,null,false);
+        final EditText CountryCode = ABView.findViewById(R.id.VerificationCountryCode);
+        final EditText PhoneNumber = ABView.findViewById(R.id.VerificationPhoneNumber);
+
+        final AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setView(ABView)
+                .create();
+
+        ((Button)ABView.findViewById(R.id.VerificationUpdateButton)).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                final String Code = CountryCode.getText().toString();
+                final String PhoneNo = PhoneNumber.getText().toString();
+                if (Code.isEmpty())
+                {
+                    CountryCode.setError("Enter country code here!");
+                    CountryCode.requestFocus();
+                } else if (PhoneNo.isEmpty())
+                {
+                    PhoneNumber.setError("Enter phone number here!");
+                    PhoneNumber.requestFocus();
+                } else
+                {
+                    alertDialog.dismiss();
+                    Thread UpdateThread = new Thread(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            String result;
+                            //if(Code.equals("91"))
+                                result = Code + PhoneNo;
+                            /*else
+                                result = "00" + Code + PhoneNo;*/
+                            ChangePhone(result);
+                        }
+                    });
+                    if (!EA.isRunning)
+                        StartAnimation();
+                    UpdateThread.start();
+                }
+            }
+        });
+        ((Button)ABView.findViewById(R.id.VerificationCancelButton)).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                alertDialog.dismiss();
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    private void ChangePhone(final String num)
+    {
+        final SharedPreferences SP = getSharedPreferences(CommonData.SP,MODE_PRIVATE);
+        try
+        {
+            HttpsURLConnection connection = (HttpsURLConnection) new URL(CommonData.ChangePhoneAddress).openConnection();
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setRequestMethod("POST");
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(), "UTF-8"));
+            bufferedWriter.write("username=" + SP.getString("username",null) + "&phone_number=" + num);
+            bufferedWriter.flush();
+            if (connection.getResponseCode() == HttpsURLConnection.HTTP_OK)
+            {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"));
+                StringBuilder stringBuilder = new StringBuilder();
+                String Line;
+                while((Line = bufferedReader.readLine()) != null)
+                    stringBuilder.append(Line);
+                final String Result = stringBuilder.toString();
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        if (EA.isRunning)
+                            StopAnimation();
+                        if(Result.equals("PhoneNumberExist"))
+                        {
+                            new AlertDialog.Builder(PhoneVerificationActivity.this)
+                                    .setTitle("Failed")
+                                    .setMessage("Phone number updation failed since this number is registered with another account!")
+                                    .setPositiveButton("Continue", new DialogInterface.OnClickListener()
+                                    {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i)
+                                        {}
+                                    })
+                                    .create().show();
+                        }
+                        else
+                        {
+                            SP.edit().putString("phone_number",num).apply();
+                            verification = SendOtpVerification.createSmsVerification(SendOtpVerification.config(
+                                    getSharedPreferences(CommonData.SP,MODE_PRIVATE).getString("phone_number",null))
+                                    .context(PhoneVerificationActivity.this)
+                                    .autoVerification(false)
+                                    .message("ASIET Alumni\nYour verification code is ##OTP##")
+                                    .otplength("6")
+                                    .build(),PhoneVerificationActivity.this);
+                            verification.initiate();
+                            Toast.makeText(PhoneVerificationActivity.this, "Verification code is send to new number", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            } else
+            {
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        if (EA.isRunning)
+                            StopAnimation();
+                        Toast.makeText(PhoneVerificationActivity.this, "Cannot connect to server. Try again after sometime!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        } catch (Exception ex)
+        {
+            runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    if (EA.isRunning)
+                        StopAnimation();
+                    Toast.makeText(PhoneVerificationActivity.this, "Cannot connect to server. Try again after sometime!", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 }

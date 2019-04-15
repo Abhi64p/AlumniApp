@@ -17,16 +17,17 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -650,7 +651,7 @@ public class AccountActivity extends AppCompatActivity
                     @Override
                     public void run()
                     {
-                        Bitmap bitmap = BitmapFactory.decodeFile(new in.ac.adishankara.alumni.asietalumnip.UriPathResolver(getContentResolver()).GetRealPath(AccountActivity.this, data.getData()));
+                        Bitmap bitmap = BitmapFactory.decodeFile(new UriPathResolver(getContentResolver()).GetRealPath(AccountActivity.this, data.getData()));
                         StoreImage(bitmap);
                         UploadFile(ProPicPath);
                     }
@@ -698,7 +699,7 @@ public class AccountActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,@NonNull int[] grantResults)
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(requestCode == ProfilePhotoAutoLoadPermissionRequestCode)

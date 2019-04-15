@@ -4,8 +4,6 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -15,6 +13,9 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
@@ -217,9 +218,9 @@ public class EditAccountActivity extends AppCompatActivity
 
     public void DeptETClicked(View view)
     {
-        final String[] depts = { "Aeronautical Engineering", "Aerospace Engineering", "Applied Electronics & Instrumentation", "Civil Engineering", "Computer Science & Engineering",
-                "Chemical Engineering", "Electrical & Electronics Engineering", "Electronics & Communication Engineering",
-                "Information & Communication Technology", "Information Technology", "Mechanical Engineering"};
+        final String[] depts = {"Applied Electronics & Instrumentation", "Civil Engineering", "Communication Engineering",
+                "Computer Science & Engineering", "Electrical & Electronics Engineering", "Electronics & Communication Engineering",
+                "Information Technology", "MBA", "Mechanical Engineering" ,"Power Electronics & Power Systems", "VLSI and Embedded Systems"};
 
         ArrayAdapter<String> adp = new ArrayAdapter<>(this,R.layout.support_simple_spinner_dropdown_item,depts);
 

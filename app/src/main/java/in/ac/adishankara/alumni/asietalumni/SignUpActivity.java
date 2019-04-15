@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.text.InputType;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +14,8 @@ import android.widget.ImageButton;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -127,6 +128,7 @@ public class SignUpActivity extends AppCompatActivity
         else
         {
             Phone = CountryCode + Phone;
+
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Email : " + Email + "\nPhone : " + Phone);
             builder.setTitle("Is this correct ?");
@@ -135,6 +137,8 @@ public class SignUpActivity extends AppCompatActivity
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i)
                 {
+                    /*if(!CountryCode.equals("91"))
+                        Phone = "00" + Phone;*/
                     StartAccountCreation();
                 }
             });
